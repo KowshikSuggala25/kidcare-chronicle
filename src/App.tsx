@@ -6,6 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
+import Children from "./pages/Children";
+import Vaccinations from "./pages/Vaccinations";
+import Records from "./pages/Records";
+import Education from "./pages/Education";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,8 +36,11 @@ const AppContent = () => {
     <Routes>
       <Route path="/" element={<Dashboard />} />
       <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/children" element={<Children />} />
+      <Route path="/vaccinations" element={<Vaccinations />} />
+      <Route path="/records" element={<Records />} />
+      <Route path="/education" element={<Education />} />
       <Route path="/auth" element={<Auth />} />
-      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>
   );

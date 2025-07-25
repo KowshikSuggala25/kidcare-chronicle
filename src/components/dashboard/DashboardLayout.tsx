@@ -2,7 +2,8 @@ import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { LogOut, Baby, Calendar, Users, FileText, BookOpen } from 'lucide-react';
+import { LogOut, Baby, Calendar, Users, FileText, BookOpen, Home } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -12,13 +13,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const { userProfile, signOut } = useAuth();
 
   const navigationItems = [
-    { icon: Baby, label: 'Children', path: '/dashboard' },
+    { icon: Home, label: 'Dashboard', path: '/dashboard' },
+    { icon: Users, label: userProfile?.role === 'healthcare_worker' ? 'All Patients' : 'Children', path: '/children' },
     { icon: Calendar, label: 'Vaccinations', path: '/vaccinations' },
     { icon: FileText, label: 'Records', path: '/records' },
-    { icon: BookOpen, label: 'Education', path: '/education' },
-    ...(userProfile?.role === 'healthcare_worker' ? [
-      { icon: Users, label: 'Patients', path: '/patients' }
-    ] : [])
+    { icon: BookOpen, label: 'Education', path: '/education' }
   ];
 
   return (
@@ -61,13 +60,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8 overflow-x-auto">
             {navigationItems.map((item) => (
-              <button
+              <Link
                 key={item.path}
+                to={item.path}
                 className="flex items-center space-x-2 py-4 text-sm font-medium text-muted-foreground hover:text-primary border-b-2 border-transparent hover:border-primary transition-colors whitespace-nowrap"
               >
                 <item.icon className="h-4 w-4" />
                 <span>{item.label}</span>
-              </button>
+              </Link>
             ))}
           </div>
         </div>

@@ -11,8 +11,14 @@ const Dashboard = () => {
   const { userProfile } = useAuth();
   const { toast } = useToast();
 
-  const handleChildAdded = (child: Child) => {
-    setChildren(prev => [...prev, child]);
+  const handleChildAdded = (childData: Omit<Child, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newChild: Child = {
+      id: crypto.randomUUID(),
+      ...childData,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    setChildren(prev => [...prev, newChild]);
   };
 
   const handleViewDetails = (child: Child) => {
