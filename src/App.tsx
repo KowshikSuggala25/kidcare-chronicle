@@ -30,8 +30,8 @@ const AppContent = () => {
 
   return (
     <Routes>
-      <Route path="/" element={currentUser ? <Dashboard /> : <Auth />} />
-      <Route path="/dashboard" element={currentUser ? <Dashboard /> : <Auth />} />
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/auth" element={<Auth />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
