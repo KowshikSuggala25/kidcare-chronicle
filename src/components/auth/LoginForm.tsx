@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 interface LoginFormProps {
-  onToggleMode: () => void;
+  onSwitch: () => void;
 }
 
-export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+export const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const { toast } = useToast();
@@ -50,7 +50,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
           required
         />
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
@@ -63,20 +63,20 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggleMode }) => {
         />
       </div>
 
-      <Button 
-        type="submit" 
-        className="w-full" 
-        variant="medical" 
+      <Button
+        type="submit"
+        className="w-full"
+        variant="medical"
         disabled={loading}
       >
-        {loading ? 'Signing in...' : 'Sign In'}
+        {loading ? "Signing in..." : "Sign In"}
       </Button>
 
       <div className="text-center">
-        <Button 
-          type="button" 
-          variant="link" 
-          onClick={onToggleMode}
+        <Button
+          type="button"
+          variant="link"
+          onClick={onSwitch}
           className="text-primary"
         >
           Don't have an account? Sign up

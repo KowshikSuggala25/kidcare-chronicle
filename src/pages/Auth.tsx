@@ -1,20 +1,31 @@
-import React, { useState } from 'react';
-import { AuthLayout } from '@/components/auth/AuthLayout';
-import { LoginForm } from '@/components/auth/LoginForm';
-import { SignupForm } from '@/components/auth/SignupForm';
+import { useAuth } from "@/contexts/AuthContext";
+import { Navigate } from "react-router-dom";
+import { AuthLayout } from "@/components/auth/AuthLayout";
+import { LoginForm } from "@/components/auth/LoginForm";
+import { SignupForm } from "@/components/auth/SignupForm";
+import { useState } from "react";
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const { currentUser } = useAuth();
+  const [isLogin, setIsLogin] = useState(true); // Toggle between login/signup
+
+  if (currentUser) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   return (
     <AuthLayout
-      title={isLogin ? 'Welcome Back' : 'Create Account'}
-      description={isLogin ? 'Sign in to access your child\'s vaccination records' : 'Join KidCare Chronicle to start tracking your child\'s health journey'}
+      title={isLogin ? "Login to KidCare Chronicle" : "Create Your Account"}
+      description={
+        isLogin
+          ? "Enter your email and password to access your child’s health records."
+          : "Sign up to begin tracking immunizations and health info."
+      }
     >
       {isLogin ? (
-        <LoginForm onToggleMode={() => setIsLogin(false)} />
+        <LoginForm onSwitch={() => setIsLogin(false)} />
       ) : (
-        <SignupForm onToggleMode={() => setIsLogin(true)} />
+        <SignupForm onSwitch={() => setIsLogin(true)} />
       )}
     </AuthLayout>
   );

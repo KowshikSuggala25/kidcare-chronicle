@@ -1,22 +1,28 @@
-import React, { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useToast } from '@/hooks/use-toast';
+import React, { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
 
 interface SignupFormProps {
-  onToggleMode: () => void;
+  onSwitch: () => void;
 }
 
-export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
+export const SignupForm: React.FC<SignupFormProps> = ({ onSwitch }) => {
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    displayName: '',
-    role: 'parent' as 'parent' | 'healthcare_worker'
+    email: "",
+    password: "",
+    confirmPassword: "",
+    displayName: "",
+    role: "parent" as "parent" | "healthcare_worker",
   });
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
@@ -24,7 +30,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (formData.password !== formData.confirmPassword) {
       toast({
         title: "Password mismatch",
@@ -39,7 +45,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
     try {
       await signUp(formData.email, formData.password, {
         displayName: formData.displayName,
-        role: formData.role
+        role: formData.role,
       });
       toast({
         title: "Account created!",
@@ -64,7 +70,9 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
           id="displayName"
           placeholder="Enter your full name"
           value={formData.displayName}
-          onChange={(e) => setFormData({ ...formData, displayName: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, displayName: e.target.value })
+          }
           required
         />
       </div>
@@ -83,8 +91,12 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
 
       <div className="space-y-2">
         <Label htmlFor="role">Role</Label>
-        <Select value={formData.role} onValueChange={(value: 'parent' | 'healthcare_worker') => 
-          setFormData({ ...formData, role: value })}>
+        <Select
+          value={formData.role}
+          onValueChange={(value: "parent" | "healthcare_worker") =>
+            setFormData({ ...formData, role: value })
+          }
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select your role" />
           </SelectTrigger>
@@ -94,7 +106,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
           </SelectContent>
         </Select>
       </div>
-      
+
       <div className="space-y-2">
         <Label htmlFor="password">Password</Label>
         <Input
@@ -102,7 +114,9 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
           type="password"
           placeholder="Create a password"
           value={formData.password}
-          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, password: e.target.value })
+          }
           required
         />
       </div>
@@ -114,25 +128,27 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onToggleMode }) => {
           type="password"
           placeholder="Confirm your password"
           value={formData.confirmPassword}
-          onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, confirmPassword: e.target.value })
+          }
           required
         />
       </div>
 
-      <Button 
-        type="submit" 
-        className="w-full" 
-        variant="medical" 
+      <Button
+        type="submit"
+        className="w-full"
+        variant="medical"
         disabled={loading}
       >
-        {loading ? 'Creating account...' : 'Create Account'}
+        {loading ? "Creating account..." : "Create Account"}
       </Button>
 
       <div className="text-center">
-        <Button 
-          type="button" 
-          variant="link" 
-          onClick={onToggleMode}
+        <Button
+          type="button"
+          variant="link"
+          onClick={onSwitch}
           className="text-primary"
         >
           Already have an account? Sign in
