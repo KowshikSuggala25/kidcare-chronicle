@@ -5,10 +5,10 @@ import { getStorage } from 'firebase/storage';
 import { getMessaging } from 'firebase/messaging';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBqJVVV5tVKvN8ZrN8KfJ8KqQcKrQ8QrQ8",
-  authDomain: "kidcare-chronicle-337722.firebaseapp.com",
-  projectId: "kidcare-chronicle-337722",
-  storageBucket: "kidcare-chronicle-337722.appspot.com",
+  apiKey: "AIzaSyB3vrXR98XUMdB9V7Afu-YOwfGlBurN44g",
+  authDomain: "immunization-tracker-966d8.firebaseapp.com",
+  projectId: "immunization-tracker-966d8",
+  storageBucket: "immunization-tracker-966d8.firebasestorage.app",
   messagingSenderId: "698343288199",
   appId: "1:698343288199:web:54b61ef059fea6e6337722"
 };
