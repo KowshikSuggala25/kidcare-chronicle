@@ -101,12 +101,14 @@ export const createVaccinationSchedule = async (childId: string, dateOfBirth: Da
 
 export const getVaccinationRecords = async (childId: string): Promise<VaccinationRecord[]> => {
   try {
+    console.log('Fetching vaccination records for child:', childId);
     const q = query(
       collection(db, 'vaccinationRecords'),
       where('childId', '==', childId)
     );
     
     const querySnapshot = await getDocs(q);
+    console.log('Found vaccination records:', querySnapshot.docs.length);
     return querySnapshot.docs.map((doc) => {
       const data = doc.data();
       return {
