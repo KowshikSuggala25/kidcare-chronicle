@@ -9,9 +9,10 @@ import { Plus, Baby } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { Child } from '@/types';
+import { createVaccinationSchedule } from '@/services/vaccinationService';
 
 interface AddChildDialogProps {
-  onChildAdded: (child: Omit<Child, 'id' | 'createdAt' | 'updatedAt'>) => void;
+  onChildAdded: (child: Omit<Child, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string | void>;
 }
 
 export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) => {
@@ -47,12 +48,21 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
         notes: formData.notes || undefined,
       };
 
-      // In a real app, this would save to Firestore
-      onChildAdded(newChild);
+      // Save to Firestore
+      const childId = await onChildAdded(newChild);
+      
+      // Create vaccination schedule for the new child
+      if (childId) {
+        try {
+          await createVaccinationSchedule(childId, new Date(formData.dateOfBirth));
+        } catch (scheduleError) {
+          console.error('Error creating vaccination schedule:', scheduleError);
+        }
+      }
       
       toast({
         title: "Child added successfully!",
-        description: `${formData.name} has been added to your family profile.`,
+        description: `${formData.name} has been added with vaccination schedule created.`,
       });
       
       setOpen(false);
