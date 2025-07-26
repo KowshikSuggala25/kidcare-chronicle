@@ -14,6 +14,7 @@ export interface QRCodeData {
 
 export const generateUniqueQR = async (child: Child): Promise<string> => {
   try {
+    console.log('Starting QR generation for child:', child.name);
     // Create a unique QR record in Firebase
     const qrData = {
       childId: child.id,
@@ -31,9 +32,12 @@ export const generateUniqueQR = async (child: Child): Promise<string> => {
       createdAt: new Date(),
     };
 
+    console.log('QR data created, adding to Firebase...');
     const docRef = await addDoc(collection(db, 'qrCodes'), qrData);
+    console.log('QR record saved with ID:', docRef.id);
     
     // Generate QR code with the document ID
+    console.log('Generating QR code image...');
     const qrCodeDataURL = await QRCode.toDataURL(`https://kidcare-qr.app/scan/${docRef.id}`, {
       width: 256,
       margin: 2,
@@ -43,10 +47,11 @@ export const generateUniqueQR = async (child: Child): Promise<string> => {
       },
     });
 
+    console.log('QR code generated successfully');
     return qrCodeDataURL;
   } catch (error) {
     console.error('Error generating QR code:', error);
-    throw new Error('Failed to generate QR code');
+    throw new Error('Failed to generate QR code: ' + (error as Error).message);
   }
 };
 

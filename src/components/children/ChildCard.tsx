@@ -42,6 +42,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
   };
 
   const handleGenerateQR = async () => {
+    console.log('QR generation started for child:', child);
     setLoading(true);
     try {
       const qrDataURL = await generateUniqueQR(child);
@@ -59,9 +60,10 @@ export const ChildCard: React.FC<ChildCardProps> = ({
         description: `One-time QR code for ${child.name} has been generated and downloaded.`,
       });
     } catch (error) {
+      console.error('QR generation error in component:', error);
       toast({
         title: "Error",
-        description: "Failed to generate QR code. Please try again.",
+        description: `Failed to generate QR code: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {
@@ -70,6 +72,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
   };
 
   const handleExportPDF = async () => {
+    console.log('PDF generation started for child:', child);
     setLoading(true);
     try {
       const vaccinationRecords = await getVaccinationRecords(child.id);
@@ -80,9 +83,10 @@ export const ChildCard: React.FC<ChildCardProps> = ({
         description: `Vaccination report for ${child.name} has been generated and downloaded.`,
       });
     } catch (error) {
+      console.error('PDF generation error in component:', error);
       toast({
         title: "Error",
-        description: "Failed to generate PDF report. Please try again.",
+        description: `Failed to generate PDF: ${error instanceof Error ? error.message : 'Unknown error'}`,
         variant: "destructive",
       });
     } finally {

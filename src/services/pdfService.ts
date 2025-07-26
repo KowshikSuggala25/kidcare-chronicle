@@ -7,6 +7,8 @@ export const generatePatientReport = async (
   vaccinationRecords: VaccinationRecord[] = []
 ): Promise<void> => {
   try {
+    console.log('Starting PDF generation for child:', child.name);
+    console.log('Vaccination records count:', vaccinationRecords.length);
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yPosition = 20;
@@ -121,9 +123,11 @@ export const generatePatientReport = async (
     );
 
     // Save the PDF
+    console.log('Saving PDF...');
     pdf.save(`${child.name.replace(/\s+/g, '_')}_vaccination_report.pdf`);
+    console.log('PDF saved successfully');
   } catch (error) {
     console.error('Error generating PDF:', error);
-    throw new Error('Failed to generate PDF report');
+    throw new Error('Failed to generate PDF report: ' + (error as Error).message);
   }
 };
