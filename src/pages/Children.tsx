@@ -73,10 +73,8 @@ const Children = () => {
 
   const handleChildAdded = async (
     childData: Omit<Child, "id" | "createdAt" | "updatedAt">
-  ) => {
+  ): Promise<string | void> => {
     try {
-      console.log("Saving child:", childData);
-
       const timestamp = new Date();
 
       const docRef = await addDoc(collection(db, "children"), {
@@ -98,6 +96,8 @@ const Children = () => {
         title: "Success",
         description: "Child added successfully!",
       });
+      
+      return docRef.id;
     } catch (error: any) {
       console.error("Firebase error:", error.message || error);
       toast({
@@ -112,20 +112,6 @@ const Children = () => {
     toast({
       title: "Feature Coming Soon",
       description: "Child details view will be available in the next update.",
-    });
-  };
-
-  const handleGenerateQR = (child: Child) => {
-    toast({
-      title: "QR Code Generated",
-      description: `QR code for ${child.name} has been generated.`,
-    });
-  };
-
-  const handleExportPDF = (child: Child) => {
-    toast({
-      title: "PDF Export",
-      description: `Vaccination report for ${child.name} is being prepared.`,
     });
   };
 
@@ -198,8 +184,6 @@ const Children = () => {
                 key={child.id}
                 child={child}
                 onViewDetails={handleViewDetails}
-                onGenerateQR={handleGenerateQR}
-                onExportPDF={handleExportPDF}
               />
             ))}
           </div>

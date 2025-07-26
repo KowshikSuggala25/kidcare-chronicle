@@ -1,24 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Calendar, MapPin, Phone, QrCode, FileText } from 'lucide-react';
+import { Calendar, Phone, QrCode, FileText } from 'lucide-react';
 import { Child } from '@/types';
+import { generateUniqueQR } from '@/services/qrService';
+import { generatePatientReport } from '@/services/pdfService';
+import { getVaccinationRecords } from '@/services/vaccinationService';
+import { useToast } from '@/hooks/use-toast';
 
 interface ChildCardProps {
   child: Child;
   onViewDetails: (child: Child) => void;
-  onGenerateQR: (child: Child) => void;
-  onExportPDF: (child: Child) => void;
 }
 
 export const ChildCard: React.FC<ChildCardProps> = ({ 
   child, 
-  onViewDetails, 
-  onGenerateQR, 
-  onExportPDF 
+  onViewDetails,
 }) => {
+  const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
+
   const calculateAge = (dateOfBirth: Date) => {
     const today = new Date();
     const birthDate = new Date(dateOfBirth);
@@ -36,6 +39,55 @@ export const ChildCard: React.FC<ChildCardProps> = ({
     }
     
     return `${age} year${age !== 1 ? 's' : ''}`;
+  };
+
+  const handleGenerateQR = async () => {
+    setLoading(true);
+    try {
+      const qrDataURL = await generateUniqueQR(child);
+      
+      // Download the QR code
+      const link = document.createElement('a');
+      link.href = qrDataURL;
+      link.download = `${child.name.replace(/\s+/g, '_')}_qr_code.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      toast({
+        title: "QR Code Generated",
+        description: `One-time QR code for ${child.name} has been generated and downloaded.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate QR code. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleExportPDF = async () => {
+    setLoading(true);
+    try {
+      const vaccinationRecords = await getVaccinationRecords(child.id);
+      await generatePatientReport(child, vaccinationRecords);
+      
+      toast({
+        title: "PDF Generated",
+        description: `Vaccination report for ${child.name} has been generated and downloaded.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to generate PDF report. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -80,20 +132,25 @@ export const ChildCard: React.FC<ChildCardProps> = ({
             variant="medical" 
             onClick={() => onViewDetails(child)}
             className="flex-1"
+            disabled={loading}
           >
             View Details
           </Button>
           <Button 
             size="sm" 
             variant="outline" 
-            onClick={() => onGenerateQR(child)}
+            onClick={handleGenerateQR}
+            disabled={loading}
+            title="Generate One-time QR Code"
           >
             <QrCode className="h-4 w-4" />
           </Button>
           <Button 
             size="sm" 
             variant="outline" 
-            onClick={() => onExportPDF(child)}
+            onClick={handleExportPDF}
+            disabled={loading}
+            title="Download PDF Report"
           >
             <FileText className="h-4 w-4" />
           </Button>
