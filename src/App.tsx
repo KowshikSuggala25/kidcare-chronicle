@@ -4,7 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import { Footer } from "@/components/layout/footer";
+import { Footer } from "./components/Layout/Footer";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import Children from "./pages/Children";
