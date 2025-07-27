@@ -88,7 +88,7 @@ export const createVaccinationSchedule = async (childId: string, dateOfBirth: Da
           updatedAt: new Date(),
         };
 
-        await addDoc(collection(db, 'vaccinationRecords'), vaccinationRecord);
+        await addDoc(collection(db, 'vaccinations'), vaccinationRecord);
       }
     });
 
@@ -103,7 +103,7 @@ export const getVaccinationRecords = async (childId: string): Promise<Vaccinatio
   try {
     console.log('Fetching vaccination records for child:', childId);
     const q = query(
-      collection(db, 'vaccinationRecords'),
+      collection(db, 'vaccinations'),
       where('childId', '==', childId)
     );
     
@@ -134,7 +134,7 @@ export const markVaccinationComplete = async (
   notes?: string
 ) => {
   try {
-    await updateDoc(doc(db, 'vaccinationRecords', recordId), {
+    await updateDoc(doc(db, 'vaccinations', recordId), {
       status: 'completed',
       administeredDate: new Date(),
       administeredBy,
