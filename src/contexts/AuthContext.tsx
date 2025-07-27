@@ -61,13 +61,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       );
       const user = userCredential.user;
 
+      const currentTime = new Date();
       const newUserProfile: User = {
         id: user.uid,
         email: user.email!,
         displayName: userData.displayName || "",
         role: userData.role || "parent",
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: currentTime,
+        updatedAt: currentTime,
+        passwordChangedAt: currentTime,
         ...userData,
       };
 

@@ -3,9 +3,11 @@ export interface User {
   email: string;
   phoneNumber?: string;
   displayName: string;
+  photoURL?: string;
   role: 'parent' | 'healthcare_worker';
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: Date | any;
+  updatedAt: Date | any;
+  passwordChangedAt?: Date | any;
 }
 
 export interface Child {
