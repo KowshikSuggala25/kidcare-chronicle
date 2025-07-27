@@ -11,3 +11,5 @@ This project is built with:
 - twilio
 - sendgrip
 - vercel
+  
+<h3>The public URL version of this project is <a href="https://kidcare-chronicle.vercel.app/">KidCare Chronicle</a></h3>
