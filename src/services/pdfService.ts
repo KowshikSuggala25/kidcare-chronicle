@@ -12,7 +12,9 @@ export const generatePatientReport = async (
     console.log('Vaccination records count:', vaccinationRecords.length);
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
     let yPosition = 20;
+    let currentPage = 1;
 
     // Add logo
     try {
@@ -36,6 +38,11 @@ export const generatePatientReport = async (
     } catch (logoError) {
       console.warn('Could not load logo:', logoError);
     }
+    // Add border to the page
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(0.5);
+    pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+
     // Header
     pdf.setFontSize(20);
     pdf.setFont('helvetica', 'bold');
@@ -139,8 +146,11 @@ export const generatePatientReport = async (
 
       pdf.setFont('helvetica', 'normal');
       vaccinationRecords.forEach((record) => {
-        if (yPosition > 280) {
+        if (yPosition > 260) {
           pdf.addPage();
+          currentPage++;
+          // Add border to new page
+          pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
           yPosition = 20;
         }
 
@@ -165,6 +175,7 @@ export const generatePatientReport = async (
     }
 
     // Add QR Code for digital verification in the middle
+    let qrSize = 40; // Define qrSize outside try block
     try {
       const qrData = JSON.stringify({
         childId: child.id,
@@ -183,11 +194,13 @@ export const generatePatientReport = async (
       });
       
       // Position QR code in the middle of the page
-      const qrSize = 40;
       const qrX = (pageWidth - qrSize) / 2;
       
-      if (yPosition + qrSize > 250) {
+      if (yPosition + qrSize > 220) {
         pdf.addPage();
+        currentPage++;
+        // Add border to new page
+        pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
         yPosition = 20;
       }
       
@@ -205,8 +218,47 @@ export const generatePatientReport = async (
     } catch (qrError) {
       console.warn('Could not generate QR code for PDF:', qrError);
     }
-    // Footer
-    yPosition = pdf.internal.pageSize.getHeight() - 20;
+
+    // Add KidCare Chronicle Stamp (Circle)
+    yPosition += qrSize + 20;
+    if (yPosition + 50 > pageHeight - 30) {
+      pdf.addPage();
+      currentPage++;
+      // Add border to new page
+      pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+      yPosition = 30;
+    }
+
+    // Create circular stamp
+    const stampX = pageWidth / 2;
+    const stampY = yPosition + 25;
+    const stampRadius = 20;
+    
+    pdf.setDrawColor(41, 98, 255); // Primary color
+    pdf.setLineWidth(2);
+    pdf.circle(stampX, stampY, stampRadius);
+    
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(41, 98, 255);
+    pdf.text('KIDCARE', stampX, stampY - 3, { align: 'center' });
+    pdf.text('CHRONICLE', stampX, stampY + 5, { align: 'center' });
+    
+    // Reset color for footer
+    pdf.setTextColor(0, 0, 0);
+    
+    // Add page numbers to all pages
+    const totalPages = pdf.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 25, pageHeight - 15);
+    }
+
+    // Footer on last page
+    pdf.setPage(totalPages);
+    yPosition = pageHeight - 30;
     pdf.setFontSize(8);
     pdf.setFont('helvetica', 'normal');
     pdf.text(
@@ -234,7 +286,9 @@ export const generateCombinedReport = async (
     console.log('Starting combined PDF generation for', children.length, 'children');
     const pdf = new jsPDF();
     const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
     let yPosition = 20;
+    let currentPage = 1;
 
     // Add logo
     try {
@@ -257,6 +311,11 @@ export const generateCombinedReport = async (
     } catch (logoError) {
       console.warn('Could not load logo:', logoError);
     }
+
+    // Add border to the page
+    pdf.setDrawColor(0, 0, 0);
+    pdf.setLineWidth(0.5);
+    pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
 
     // Header
     pdf.setFontSize(20);
@@ -302,8 +361,11 @@ export const generateCombinedReport = async (
       const child = children[i];
       const childRecords = allRecords.filter(r => r.childId === child.id);
 
-      if (yPosition > 250) {
+      if (yPosition > 230) {
         pdf.addPage();
+        currentPage++;
+        // Add border to new page
+        pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
         yPosition = 20;
       }
 
@@ -333,8 +395,11 @@ export const generateCombinedReport = async (
 
         pdf.setFont('helvetica', 'normal');
         childRecords.forEach((record) => {
-          if (yPosition > 270) {
+          if (yPosition > 250) {
             pdf.addPage();
+            currentPage++;
+            // Add border to new page
+            pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
             yPosition = 20;
           }
 
@@ -353,6 +418,7 @@ export const generateCombinedReport = async (
     }
 
     // Add QR Code in the middle for combined report
+    let qrSize = 40; // Define qrSize outside try block
     try {
       const qrData = JSON.stringify({
         type: 'combined_report',
@@ -370,11 +436,13 @@ export const generateCombinedReport = async (
         },
       });
       
-      const qrSize = 40;
       const qrX = (pageWidth - qrSize) / 2;
       
-      if (yPosition + qrSize > 250) {
+      if (yPosition + qrSize > 220) {
         pdf.addPage();
+        currentPage++;
+        // Add border to new page
+        pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
         yPosition = 20;
       }
       
@@ -393,8 +461,46 @@ export const generateCombinedReport = async (
       console.warn('Could not generate QR code for combined PDF:', qrError);
     }
 
-    // Footer
-    yPosition = pdf.internal.pageSize.getHeight() - 20;
+    // Add KidCare Chronicle Stamp (Circle)
+    yPosition += qrSize + 20;
+    if (yPosition + 50 > pageHeight - 30) {
+      pdf.addPage();
+      currentPage++;
+      // Add border to new page
+      pdf.rect(10, 10, pageWidth - 20, pageHeight - 20);
+      yPosition = 30;
+    }
+
+    // Create circular stamp
+    const stampX = pageWidth / 2;
+    const stampY = yPosition + 25;
+    const stampRadius = 20;
+    
+    pdf.setDrawColor(41, 98, 255); // Primary color
+    pdf.setLineWidth(2);
+    pdf.circle(stampX, stampY, stampRadius);
+    
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(41, 98, 255);
+    pdf.text('KIDCARE', stampX, stampY - 3, { align: 'center' });
+    pdf.text('CHRONICLE', stampX, stampY + 5, { align: 'center' });
+    
+    // Reset color for footer
+    pdf.setTextColor(0, 0, 0);
+    
+    // Add page numbers to all pages
+    const totalPages = pdf.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      pdf.setPage(i);
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Page ${i} of ${totalPages}`, pageWidth - 25, pageHeight - 15);
+    }
+
+    // Footer on last page
+    pdf.setPage(totalPages);
+    yPosition = pageHeight - 30;
     pdf.setFontSize(8);
     pdf.setFont('helvetica', 'normal');
     pdf.text(

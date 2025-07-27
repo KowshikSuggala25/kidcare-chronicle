@@ -9,18 +9,23 @@ import { generateUniqueQR } from "@/services/qrService";
 import { generatePatientReport } from "@/services/pdfService";
 import { getVaccinationRecords } from "@/services/vaccinationService";
 import { useToast } from "@/hooks/use-toast";
+import { EditChildDialog } from "./EditChildDialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ChildCardProps {
   child: Child;
   onViewDetails: (child: Child) => void;
+  onChildUpdated?: (child: Child) => void;
 }
 
 export const ChildCard: React.FC<ChildCardProps> = ({
   child,
   onViewDetails,
+  onChildUpdated,
 }) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { userProfile } = useAuth();
 
   const calculateAge = (dateOfBirth: Date) => {
     const today = new Date();
@@ -154,6 +159,9 @@ export const ChildCard: React.FC<ChildCardProps> = ({
           >
             View Details
           </Button>
+          {userProfile?.role === 'parent' && onChildUpdated && (
+            <EditChildDialog child={child} onChildUpdated={onChildUpdated} />
+          )}
           <Button
             size="sm"
             variant="outline"

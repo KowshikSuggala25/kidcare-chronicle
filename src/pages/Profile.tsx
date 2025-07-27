@@ -3,99 +3,70 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { User, Camera, Shield, Save, X, Edit3 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { generateUniqueQR } from "@/services/qrService";
-import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/hooks/use-toast";
-import { Edit, Camera, Shield, User } from "lucide-react";
 import { doc, updateDoc } from "firebase/firestore";
-import {
-  updatePassword,
-  reauthenticateWithCredential,
-  EmailAuthProvider,
-} from "firebase/auth";
+import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
 import { db } from "@/lib/firebase";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { generateUniqueQR } from "@/services/qrService";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 export const Profile: React.FC = () => {
   const { currentUser, userProfile } = useAuth();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [qrCodeImage, setQrCodeImage] = useState<string | null>(null);
   const [isGeneratingQR, setIsGeneratingQR] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [profileData, setProfileData] = useState({
+  const [editFormData, setEditFormData] = useState({
     displayName: userProfile?.displayName || "",
-    email: userProfile?.email || "",
-    role: userProfile?.role || "parent",
+    photoURL: userProfile?.photoURL || "",
   });
-  const [profileImage, setProfileImage] = useState<string>(
-    userProfile?.photoURL || ""
-  );
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-  const [loading, setLoading] = useState(false);
 
-  const handleEditToggle = () => {
-    if (isEditing) {
-      setProfileData({
-        displayName: userProfile?.displayName || "",
-        email: userProfile?.email || "",
-        role: userProfile?.role || "parent",
-      });
-      setProfileImage(userProfile?.photoURL || "");
-    }
-    setIsEditing(!isEditing);
-  };
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      setProfileImage(file);
+      setEditFormData({ ...editFormData, photoURL: URL.createObjectURL(file) });
     }
   };
+
   const handleGenerateQR = async () => {
     if (!userProfile) return;
-
+    
     setIsGeneratingQR(true);
     try {
       const childData = {
         id: userProfile.id,
         name: userProfile.displayName,
         dateOfBirth: new Date(),
-        gender: "other" as const,
+        gender: 'other' as const,
         parentId: userProfile.id,
         parentName: userProfile.displayName,
         parentContact: userProfile.email,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-
+      
       const qrDataUrl = await generateUniqueQR(childData);
       setQrCodeImage(qrDataUrl);
-
+      
       toast({
         title: "QR Code Generated",
         description: "Your QR code has been generated successfully.",
       });
     } catch (error) {
-      console.error("Error generating QR code:", error);
+      console.error('Error generating QR code:', error);
       toast({
         title: "Error",
         description: "Failed to generate QR code. Please try again.",
@@ -105,18 +76,16 @@ export const Profile: React.FC = () => {
       setIsGeneratingQR(false);
     }
   };
-  const handleSaveProfile = async () => {
+
+  const handleSaveChanges = async () => {
     if (!currentUser || !userProfile) return;
 
-    setLoading(true);
     try {
-      const updateData = {
-        ...profileData,
-        photoURL: profileImage,
+      await updateDoc(doc(db, "users", currentUser.uid), {
+        displayName: editFormData.displayName,
+        photoURL: editFormData.photoURL,
         updatedAt: new Date(),
-      };
-
-      await updateDoc(doc(db, "users", currentUser.uid), updateData);
+      });
 
       toast({
         title: "Profile Updated",
@@ -131,9 +100,16 @@ export const Profile: React.FC = () => {
         description: "Failed to update profile. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const handleCancelEdit = () => {
+    setEditFormData({
+      displayName: userProfile?.displayName || "",
+      photoURL: userProfile?.photoURL || "",
+    });
+    setProfileImage(null);
+    setIsEditing(false);
   };
 
   const handleChangePassword = async () => {
@@ -141,25 +117,15 @@ export const Profile: React.FC = () => {
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast({
-        title: "Error",
-        description: "New passwords do not match.",
+        title: "Password Mismatch",
+        description: "New password and confirmation password do not match.",
         variant: "destructive",
       });
       return;
     }
 
-    if (passwordData.newPassword.length < 6) {
-      toast({
-        title: "Error",
-        description: "Password must be at least 6 characters long.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setLoading(true);
     try {
-      // Re-authenticate user with current password
+      // Re-authenticate user
       const credential = EmailAuthProvider.credential(
         currentUser.email!,
         passwordData.currentPassword
@@ -188,8 +154,8 @@ export const Profile: React.FC = () => {
       });
     } catch (error: any) {
       console.error("Error changing password:", error);
-
-      let errorMessage = "Failed to change password. Please try again.";
+      let errorMessage = "Failed to change password.";
+      
       if (error.code === "auth/wrong-password") {
         errorMessage = "Current password is incorrect.";
       } else if (error.code === "auth/weak-password") {
@@ -201,16 +167,16 @@ export const Profile: React.FC = () => {
         description: errorMessage,
         variant: "destructive",
       });
-    } finally {
-      setLoading(false);
     }
   };
 
   if (!userProfile) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="text-center">Loading profile...</div>
-      </div>
+      <DashboardLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </DashboardLayout>
     );
   }
 
@@ -220,9 +186,7 @@ export const Profile: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Profile</h1>
-            <p className="text-muted-foreground">
-              Manage your account settings and preferences
-            </p>
+            <p className="text-muted-foreground">Manage your account settings and preferences</p>
           </div>
           <Badge variant="outline" className="capitalize">
             {userProfile.role}
@@ -230,54 +194,33 @@ export const Profile: React.FC = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          {/* Profile Image Card */}
-          <Card className="md:col-span-1">
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <User className="h-5 w-5" />
-                <span>Profile Picture</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col items-center space-y-4">
-              <Avatar className="h-32 w-32">
-                <AvatarImage src={profileImage} alt={profileData.displayName} />
-                <AvatarFallback className="text-2xl">
-                  {profileData.displayName.charAt(0).toUpperCase() || "U"}
-                </AvatarFallback>
-              </Avatar>
-
-              {isEditing && (
-                <div className="w-full">
-                  <Label htmlFor="photo-upload" className="cursor-pointer">
-                    <Button variant="outline" className="w-full" asChild>
-                      <span>
-                        <Camera className="h-4 w-4 mr-2" />
-                        Upload Photo
-                      </span>
-                    </Button>
-                  </Label>
-                  <Input
-                    id="photo-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
+        {/* Profile Image Card */}
+        <Card className="md:col-span-1">
+          <CardHeader>
+            <CardTitle className="flex items-center space-x-2">
+              <User className="h-5 w-5" />
+              <span>Profile Image</span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="text-center space-y-4">
+            <Avatar className="h-24 w-24 mx-auto">
+              <AvatarImage src={userProfile.photoURL || undefined} />
+              <AvatarFallback className="text-2xl">
+                {userProfile.displayName?.charAt(0)?.toUpperCase() || "U"}
+              </AvatarFallback>
+            </Avatar>
+            
+            {/* QR Code Display */}
+            {qrCodeImage && (
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Your QR Code</p>
+                <div className="mx-auto w-32 h-32 border rounded-lg overflow-hidden">
+                  <img src={qrCodeImage} alt="QR Code" className="w-full h-full object-contain" />
                 </div>
-              )}
-              {qrCodeImage && (
-                <div className="space-y-2">
-                  <p className="text-sm text-muted-foreground">Your QR Code</p>
-                  <div className="mx-auto w-32 h-32 border rounded-lg overflow-hidden">
-                    <img
-                      src={qrCodeImage}
-                      alt="QR Code"
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-                </div>
-              )}
-
+              </div>
+            )}
+            
+            {userProfile.role === 'healthcare_worker' && (
               <Button
                 onClick={handleGenerateQR}
                 disabled={isGeneratingQR}
@@ -285,93 +228,88 @@ export const Profile: React.FC = () => {
                 size="sm"
                 className="w-full"
               >
-                {isGeneratingQR ? "Generating..." : "Generate QR Code"}
+                {isGeneratingQR ? 'Generating...' : 'Generate QR Code'}
               </Button>
-            </CardContent>
-          </Card>
+            )}
+            
+            {isEditing && (
+              <div className="space-y-2">
+                <Label htmlFor="profileImage">Profile Picture</Label>
+                <Input
+                  id="profileImage"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="cursor-pointer"
+                />
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
-          {/* Profile Details Card */}
+          {/* Personal Information Card */}
           <Card className="md:col-span-2">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle>Profile Information</CardTitle>
-                <Button
-                  variant={isEditing ? "destructive" : "outline"}
-                  onClick={handleEditToggle}
-                  disabled={loading}
-                >
-                  <Edit className="h-4 w-4 mr-2" />
-                  {isEditing ? "Cancel" : "Edit Profile"}
-                </Button>
-              </div>
+              <CardTitle className="flex items-center justify-between">
+                <span className="flex items-center space-x-2">
+                  <User className="h-5 w-5" />
+                  <span>Personal Information</span>
+                </span>
+                {!isEditing ? (
+                  <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                    <Edit3 className="h-4 w-4 mr-2" />
+                    Edit Profile
+                  </Button>
+                ) : (
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" onClick={handleCancelEdit}>
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button variant="default" size="sm" onClick={handleSaveChanges}>
+                      <Save className="h-4 w-4 mr-2" />
+                      Save
+                    </Button>
+                  </div>
+                )}
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="displayName">Display Name</Label>
-                  <Input
-                    id="displayName"
-                    value={profileData.displayName}
-                    onChange={(e) =>
-                      setProfileData({
-                        ...profileData,
-                        displayName: e.target.value,
-                      })
-                    }
-                    disabled={!isEditing}
-                  />
+                  {isEditing ? (
+                    <Input
+                      id="displayName"
+                      value={editFormData.displayName}
+                      onChange={(e) =>
+                        setEditFormData({ ...editFormData, displayName: e.target.value })
+                      }
+                    />
+                  ) : (
+                    <p className="text-sm text-muted-foreground">
+                      {userProfile.displayName || "Not set"}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    value={profileData.email}
-                    disabled
-                    className="bg-muted"
-                  />
+                  <p className="text-sm text-muted-foreground">{userProfile.email}</p>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Input
-                  id="role"
-                  value={profileData.role}
-                  disabled
-                  className="bg-muted capitalize"
-                />
-              </div>
-
               <div className="text-sm text-muted-foreground">
-                <p>
-                  Account created:{" "}
-                  {userProfile.createdAt
-                    ? new Date(
-                        userProfile.createdAt?.seconds
-                          ? userProfile.createdAt.seconds * 1000
-                          : userProfile.createdAt
-                      ).toLocaleDateString()
-                    : "Unknown"}
-                </p>
-                <p>
-                  Last updated:{" "}
-                  {userProfile.updatedAt
-                    ? new Date(
-                        userProfile.updatedAt?.seconds
-                          ? userProfile.updatedAt.seconds * 1000
-                          : userProfile.updatedAt
-                      ).toLocaleDateString()
-                    : "Unknown"}
-                </p>
+                <p>Account created: {userProfile.createdAt ? new Date(userProfile.createdAt?.seconds ? userProfile.createdAt.seconds * 1000 : userProfile.createdAt).toLocaleDateString() : 'Unknown'}</p>
+                <p>Last updated: {userProfile.updatedAt ? new Date(userProfile.updatedAt?.seconds ? userProfile.updatedAt.seconds * 1000 : userProfile.updatedAt).toLocaleDateString() : 'Unknown'}</p>
               </div>
 
               {isEditing && (
-                <div className="flex space-x-2 pt-4">
-                  <Button onClick={handleSaveProfile} disabled={loading}>
-                    Save Changes
-                  </Button>
+                <div className="pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Changes will be saved to your profile. Some changes may require you to
+                    refresh the page.
+                  </p>
                 </div>
               )}
             </CardContent>
@@ -390,23 +328,15 @@ export const Profile: React.FC = () => {
                 <div>
                   <h3 className="font-medium">Password</h3>
                   <p className="text-sm text-muted-foreground">
-                    Last changed:{" "}
-                    {userProfile.passwordChangedAt
-                      ? new Date(
-                          userProfile.passwordChangedAt?.seconds
-                            ? userProfile.passwordChangedAt.seconds * 1000
-                            : userProfile.passwordChangedAt
-                        ).toLocaleDateString()
-                      : "Not available"}
+                    Last changed: {userProfile.passwordChangedAt ? new Date(userProfile.passwordChangedAt?.seconds ? userProfile.passwordChangedAt.seconds * 1000 : userProfile.passwordChangedAt).toLocaleDateString() : 'Not available'}
                   </p>
                 </div>
-
-                <Dialog
-                  open={isChangingPassword}
-                  onOpenChange={setIsChangingPassword}
-                >
+                
+                <Dialog open={isChangingPassword} onOpenChange={setIsChangingPassword}>
                   <DialogTrigger asChild>
-                    <Button variant="outline">Change Password</Button>
+                    <Button variant="outline">
+                      Change Password
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -414,18 +344,13 @@ export const Profile: React.FC = () => {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="currentPassword">
-                          Current Password
-                        </Label>
+                        <Label htmlFor="currentPassword">Current Password</Label>
                         <Input
                           id="currentPassword"
                           type="password"
                           value={passwordData.currentPassword}
                           onChange={(e) =>
-                            setPasswordData({
-                              ...passwordData,
-                              currentPassword: e.target.value,
-                            })
+                            setPasswordData({ ...passwordData, currentPassword: e.target.value })
                           }
                         />
                       </div>
@@ -437,44 +362,32 @@ export const Profile: React.FC = () => {
                           type="password"
                           value={passwordData.newPassword}
                           onChange={(e) =>
-                            setPasswordData({
-                              ...passwordData,
-                              newPassword: e.target.value,
-                            })
+                            setPasswordData({ ...passwordData, newPassword: e.target.value })
                           }
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">
-                          Confirm New Password
-                        </Label>
+                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
                         <Input
                           id="confirmPassword"
                           type="password"
                           value={passwordData.confirmPassword}
                           onChange={(e) =>
-                            setPasswordData({
-                              ...passwordData,
-                              confirmPassword: e.target.value,
-                            })
+                            setPasswordData({ ...passwordData, confirmPassword: e.target.value })
                           }
                         />
                       </div>
 
-                      <div className="flex space-x-2 pt-4">
-                        <Button
-                          onClick={handleChangePassword}
-                          disabled={loading}
-                        >
-                          Update Password
-                        </Button>
+                      <div className="flex justify-end space-x-2 pt-4">
                         <Button
                           variant="outline"
                           onClick={() => setIsChangingPassword(false)}
-                          disabled={loading}
                         >
                           Cancel
+                        </Button>
+                        <Button onClick={handleChangePassword}>
+                          Change Password
                         </Button>
                       </div>
                     </div>
