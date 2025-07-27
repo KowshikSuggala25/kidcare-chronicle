@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -13,6 +13,7 @@ import {
   UserCircle,
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
+import { UserProfileModal } from "@/components/profile/UserProfileModal";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -23,6 +24,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 }) => {
   const { userProfile, signOut } = useAuth();
   const location = useLocation();
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const navigationItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
@@ -66,12 +68,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </div>
 
             <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
+              <div 
+                className="flex items-center space-x-2 cursor-pointer hover:bg-muted/50 rounded-lg p-2 transition-colors"
+                onClick={() => setIsProfileModalOpen(true)}
+              >
                 <Avatar className="h-8 w-8">
-                  <AvatarImage
-                    src={userProfile?.photoURL}
-                    alt={userProfile?.displayName}
-                  />
+                  <AvatarImage src={userProfile?.photoURL} alt={userProfile?.displayName} />
                   <AvatarFallback className="bg-primary text-primary-foreground">
                     {userProfile?.displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
@@ -120,6 +122,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {children}
       </main>
+
+      {/* User Profile Modal */}
+      <UserProfileModal 
+        isOpen={isProfileModalOpen} 
+        onClose={() => setIsProfileModalOpen(false)} 
+      />
     </div>
   );
 };

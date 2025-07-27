@@ -96,7 +96,7 @@ const Children = () => {
         title: "Success",
         description: "Child added successfully!",
       });
-
+      
       return docRef.id;
     } catch (error: any) {
       console.error("Firebase error:", error.message || error);
@@ -108,31 +108,30 @@ const Children = () => {
     }
   };
 
+  const handleChildUpdated = (updatedChild: Child) => {
+    setChildren(prev => prev.map(child => 
+      child.id === updatedChild.id ? updatedChild : child
+    ));
+  };
+
   const handleViewDetails = (child: Child) => {
     // Find parent details
-    const parentDetails =
-      userProfile?.role === "parent"
-        ? userProfile
-        : { displayName: child.parentName, email: child.parentContact };
-
+    const parentDetails = userProfile?.role === 'parent' 
+      ? userProfile 
+      : { displayName: child.parentName, email: child.parentContact };
+    
     const calculateAge = (dateOfBirth: Date) => {
       const today = new Date();
       const birthDate = new Date(dateOfBirth);
       let age = today.getFullYear() - birthDate.getFullYear();
       const monthDiff = today.getMonth() - birthDate.getMonth();
 
-      if (
-        monthDiff < 0 ||
-        (monthDiff === 0 && today.getDate() < birthDate.getDate())
-      ) {
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
         age--;
       }
 
       if (age === 0) {
-        const months =
-          (today.getFullYear() - birthDate.getFullYear()) * 12 +
-          today.getMonth() -
-          birthDate.getMonth();
+        const months = (today.getFullYear() - birthDate.getFullYear()) * 12 + today.getMonth() - birthDate.getMonth();
         return months <= 1
           ? `${Math.floor((today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24))} days`
           : `${months} months`;
@@ -147,14 +146,14 @@ Patient Details:
 • Age: ${calculateAge(child.dateOfBirth)}
 • Date of Birth: ${child.dateOfBirth.toLocaleDateString()}
 • Gender: ${child.gender}
-• Medical Record #: ${child.medicalRecordNumber || "Not provided"}
-• Allergies: ${child.allergies ? child.allergies.join(", ") : "None reported"}
-• Notes: ${child.notes || "None"}
+• Medical Record #: ${child.medicalRecordNumber || 'Not provided'}
+• Allergies: ${child.allergies ? child.allergies.join(', ') : 'None reported'}
+• Notes: ${child.notes || 'None'}
 
 Parent/Guardian Information:
 • Name: ${parentDetails.displayName || child.parentName}
 • Contact: ${child.parentContact}
-• Email: ${parentDetails.email || "Not available"}
+• Email: ${parentDetails.email || 'Not available'}
 
 Registration Date: ${child.createdAt.toLocaleDateString()}
 Last Updated: ${child.updatedAt.toLocaleDateString()}
@@ -236,6 +235,7 @@ Last Updated: ${child.updatedAt.toLocaleDateString()}
                 key={child.id}
                 child={child}
                 onViewDetails={handleViewDetails}
+                onChildUpdated={handleChildUpdated}
               />
             ))}
           </div>

@@ -8,6 +8,7 @@ import { db } from '@/lib/firebase';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { format } from 'date-fns';
+import { VaccinationStatusMenu } from '../components/vaccinations/VaccinationStatusMenu';
 
 const Vaccinations = () => {
   const [vaccinations, setVaccinations] = useState<VaccinationRecord[]>([]);
@@ -90,6 +91,16 @@ const Vaccinations = () => {
     return child?.name || 'Unknown Child';
   };
 
+  const handleStatusChange = (vaccinationId: string, newStatus: string) => {
+    setVaccinations(prev => 
+      prev.map(v => 
+        v.id === vaccinationId 
+          ? { ...v, status: newStatus as "scheduled" | "completed" | "missed" | "overdue", updatedAt: new Date() }
+          : v
+      )
+    );
+  };
+
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'completed':
@@ -144,9 +155,17 @@ const Vaccinations = () => {
                     <CardTitle className="text-lg">
                       {vaccination.vaccineName} - Dose {vaccination.doseNumber}
                     </CardTitle>
-                    <Badge variant={getStatusVariant(vaccination.status)}>
-                      {vaccination.status}
-                    </Badge>
+                    <div className="flex items-center space-x-2">
+                      <Badge variant={getStatusVariant(vaccination.status)}>
+                        {vaccination.status}
+                      </Badge>
+                      {userProfile?.role === 'healthcare_worker' && (
+                        <VaccinationStatusMenu 
+                          vaccination={vaccination}
+                          onStatusChange={handleStatusChange}
+                        />
+                      )}
+                    </div>
                   </div>
                   <p className="text-sm text-muted-foreground">
                     Child: {getChildName(vaccination.childId)}

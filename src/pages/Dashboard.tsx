@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
-import { ChildCard } from "@/components/children/ChildCard";
+import { ChildCard } from "../components/children/ChildCard";
 import { AddChildDialog } from "@/components/children/AddChildDialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { Child } from "@/types";
@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { getVaccinationStats } from "@/services/vaccinationService";
+import { PatientDetailsModal } from "@/components/patient/PatientDetailsModal";
 
 const Dashboard = () => {
   const [children, setChildren] = useState<Child[]>([]);
@@ -122,11 +123,12 @@ const Dashboard = () => {
     }
   };
 
+  const [selectedPatient, setSelectedPatient] = useState<Child | null>(null);
+  const [isPatientModalOpen, setIsPatientModalOpen] = useState(false);
+
   const handleViewDetails = (child: Child) => {
-    toast({
-      title: "Feature Coming Soon",
-      description: "Child details view will be available in the next update.",
-    });
+    setSelectedPatient(child);
+    setIsPatientModalOpen(true);
   };
 
   if (loading) {
@@ -297,6 +299,15 @@ const Dashboard = () => {
             </div>
           )}
         </div>
+
+        <PatientDetailsModal
+          child={selectedPatient}
+          isOpen={isPatientModalOpen}
+          onClose={() => {
+            setIsPatientModalOpen(false);
+            setSelectedPatient(null);
+          }}
+        />
       </div>
     </DashboardLayout>
   );
