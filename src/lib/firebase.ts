@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getMessaging } from 'firebase/messaging';
-
+import { Resend } from "resend";
 const firebaseConfig = {
   apiKey: "AIzaSyB3vrXR98XUMdB9V7Afu-YOwfGlBurN44g",
   authDomain: "immunization-tracker-966d8.firebaseapp.com",
@@ -19,5 +19,6 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 export const messaging = getMessaging(app);
+export const resend = new Resend("YOUR_RESEND_API_KEY");
 
 export default app;

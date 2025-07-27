@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import { Child, VaccinationRecord } from '@/types';
 import { format } from 'date-fns';
+import QRCode from 'qrcode';
 
 export const generatePatientReport = async (
   child: Child,
@@ -13,11 +14,33 @@ export const generatePatientReport = async (
     const pageWidth = pdf.internal.pageSize.getWidth();
     let yPosition = 20;
 
+    // Add logo
+    try {
+      const logoImg = new Image();
+      logoImg.crossOrigin = 'anonymous';
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = reject;
+        logoImg.src = '/kidcare.png';
+      });
+      
+      // Add logo to top left
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = logoImg.width;
+      canvas.height = logoImg.height;
+      ctx?.drawImage(logoImg, 0, 0);
+      const logoDataUrl = canvas.toDataURL('image/png');
+      
+      pdf.addImage(logoDataUrl, 'PNG', 15, 10, 20, 20);
+    } catch (logoError) {
+      console.warn('Could not load logo:', logoError);
+    }
     // Header
     pdf.setFontSize(20);
     pdf.setFont('helvetica', 'bold');
-    pdf.text('KidCare Chronicle', pageWidth / 2, yPosition, { align: 'center' });
-    yPosition += 10;
+    pdf.text('KidCare Chronicle', pageWidth / 2, 25, { align: 'center' });
+    yPosition = 35;
     
     pdf.setFontSize(14);
     pdf.text('Vaccination Report', pageWidth / 2, yPosition, { align: 'center' });
@@ -46,7 +69,7 @@ export const generatePatientReport = async (
       yPosition += 6;
     });
 
-    if (child.allergies && child.allergies.length > 0) {
+    if (child.allergies && Array.isArray(child.allergies) && child.allergies.length > 0) {
       yPosition += 5;
       pdf.text(`Allergies: ${child.allergies.join(', ')}`, 20, yPosition);
       yPosition += 6;
@@ -70,6 +93,7 @@ export const generatePatientReport = async (
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'normal');
       pdf.text('No vaccination records found.', 20, yPosition);
+      yPosition += 20;
     } else {
       // Table headers
       pdf.setFontSize(10);
@@ -109,8 +133,50 @@ export const generatePatientReport = async (
         pdf.text(record.status, 180, yPosition);
         yPosition += 6;
       });
+      yPosition += 20;
     }
 
+    // Add QR Code for digital verification
+    try {
+      const qrData = JSON.stringify({
+        childId: child.id,
+        name: child.name,
+        reportGenerated: new Date().toISOString(),
+        type: 'vaccination_report'
+      });
+      
+      const qrCodeDataURL = await QRCode.toDataURL(qrData, {
+        width: 128,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+      });
+      
+      // Position QR code on the right side
+      const qrSize = 30;
+      const qrX = pageWidth - qrSize - 20;
+      
+      if (yPosition + qrSize > 280) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+      
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Digital Verification', qrX, yPosition);
+      yPosition += 8;
+      
+      pdf.addImage(qrCodeDataURL, 'PNG', qrX, yPosition, qrSize, qrSize);
+      
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Scan for digital verification', qrX, yPosition + qrSize + 5);
+      
+    } catch (qrError) {
+      console.warn('Could not generate QR code for PDF:', qrError);
+    }
     // Footer
     yPosition = pdf.internal.pageSize.getHeight() - 20;
     pdf.setFontSize(8);
@@ -130,4 +196,4 @@ export const generatePatientReport = async (
     console.error('Error generating PDF:', error);
     throw new Error('Failed to generate PDF report: ' + (error as Error).message);
   }
-};
+};  
