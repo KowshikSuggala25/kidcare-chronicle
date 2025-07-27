@@ -1,33 +1,49 @@
-import React, { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
-import { Plus, Baby } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { useAuth } from '@/contexts/AuthContext';
-import { Child } from '@/types';
-import { createVaccinationSchedule } from '@/services/vaccinationService';
+import React, { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Plus, Baby } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
+import { Child } from "@/types";
+import { createVaccinationSchedule } from "@/services/vaccinationService";
 
 interface AddChildDialogProps {
-  onChildAdded: (child: Omit<Child, 'id' | 'createdAt' | 'updatedAt'>) => Promise<string | void>;
+  onChildAdded: (
+    child: Omit<Child, "id" | "createdAt" | "updatedAt">
+  ) => Promise<string | void>;
 }
 
-export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) => {
+export const AddChildDialog: React.FC<AddChildDialogProps> = ({
+  onChildAdded,
+}) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    dateOfBirth: '',
-    gender: 'male' as 'male' | 'female' | 'other',
-    parentContact: '',
-    medicalRecordNumber: '',
-    allergies: '',
-    notes: ''
+    name: "",
+    dateOfBirth: "",
+    gender: "male" as "male" | "female" | "other",
+    parentContact: "",
+    medicalRecordNumber: "",
+    allergies: "",
+    notes: "",
   });
-  
+
   const { userProfile } = useAuth();
   const { toast } = useToast();
 
@@ -36,44 +52,49 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
     setLoading(true);
 
     try {
-      const newChild: Omit<Child, 'id' | 'createdAt' | 'updatedAt'> = {
+      const newChild: Omit<Child, "id" | "createdAt" | "updatedAt"> = {
         name: formData.name,
         dateOfBirth: new Date(formData.dateOfBirth),
         gender: formData.gender,
-        parentId: userProfile?.id || '',
-        parentName: userProfile?.displayName || '',
+        parentId: userProfile?.id || "",
+        parentName: userProfile?.displayName || "",
         parentContact: formData.parentContact,
         medicalRecordNumber: formData.medicalRecordNumber || undefined,
-        allergies: formData.allergies ? formData.allergies.split(',').map(a => a.trim()) : undefined,
+        allergies: formData.allergies
+          ? formData.allergies.split(",").map((a) => a.trim())
+          : undefined,
         notes: formData.notes || undefined,
       };
 
       // Save to Firestore
       const childId = await onChildAdded(newChild);
-      
+
       // Create vaccination schedule for the new child
       if (childId) {
         try {
-          await createVaccinationSchedule(childId, new Date(formData.dateOfBirth));
+          await createVaccinationSchedule(
+            childId,
+            new Date(formData.dateOfBirth)
+          );
         } catch (scheduleError) {
-          console.error('Error creating vaccination schedule:', scheduleError);
+          console.error("Error creating vaccination schedule:", scheduleError);
         }
       }
-      
+
       toast({
         title: "Child added successfully!",
         description: `${formData.name} has been added with vaccination schedule created.`,
       });
-      
+
       setOpen(false);
       setFormData({
-        name: '',
-        dateOfBirth: '',
-        gender: 'male',
-        parentContact: '',
-        medicalRecordNumber: '',
-        allergies: '',
-        notes: ''
+        name: "",
+        dateOfBirth: "",
+        gender: "male",
+        parentContact: "",
+        medicalRecordNumber: "",
+        allergies: "",
+        notes: "",
       });
     } catch (error) {
       toast({
@@ -94,14 +115,14 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
           Add Child
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Baby className="h-5 w-5 text-primary" />
             <span>Add New Child</span>
           </DialogTitle>
         </DialogHeader>
-        
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
@@ -109,7 +130,9 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
               id="name"
               placeholder="Enter child's full name"
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, name: e.target.value })
+              }
               required
             />
           </div>
@@ -120,15 +143,21 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
               id="dateOfBirth"
               type="date"
               value={formData.dateOfBirth}
-              onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, dateOfBirth: e.target.value })
+              }
               required
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="gender">Gender</Label>
-            <Select value={formData.gender} onValueChange={(value: 'male' | 'female' | 'other') => 
-              setFormData({ ...formData, gender: value })}>
+            <Select
+              value={formData.gender}
+              onValueChange={(value: "male" | "female" | "other") =>
+                setFormData({ ...formData, gender: value })
+              }
+            >
               <SelectTrigger>
                 <SelectValue />
               </SelectTrigger>
@@ -146,18 +175,27 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
               id="parentContact"
               placeholder="Enter parent's contact number"
               value={formData.parentContact}
-              onChange={(e) => setFormData({ ...formData, parentContact: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, parentContact: e.target.value })
+              }
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="medicalRecordNumber">Medical Record Number (Optional)</Label>
+            <Label htmlFor="medicalRecordNumber">
+              Medical Record Number (Optional)
+            </Label>
             <Input
               id="medicalRecordNumber"
               placeholder="Enter medical record number"
               value={formData.medicalRecordNumber}
-              onChange={(e) => setFormData({ ...formData, medicalRecordNumber: e.target.value })}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  medicalRecordNumber: e.target.value,
+                })
+              }
             />
           </div>
 
@@ -167,7 +205,9 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
               id="allergies"
               placeholder="Enter allergies separated by commas"
               value={formData.allergies}
-              onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, allergies: e.target.value })
+              }
             />
           </div>
 
@@ -177,27 +217,29 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({ onChildAdded }) 
               id="notes"
               placeholder="Any additional information about the child"
               value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, notes: e.target.value })
+              }
               rows={3}
             />
           </div>
 
           <div className="flex space-x-3 pt-4">
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               onClick={() => setOpen(false)}
               className="flex-1"
             >
               Cancel
             </Button>
-            <Button 
-              type="submit" 
-              variant="medical" 
+            <Button
+              type="submit"
+              variant="medical"
               disabled={loading}
               className="flex-1"
             >
-              {loading ? 'Adding...' : 'Add Child'}
+              {loading ? "Adding..." : "Add Child"}
             </Button>
           </div>
         </form>

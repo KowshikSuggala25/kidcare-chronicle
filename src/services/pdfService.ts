@@ -55,9 +55,37 @@ export const generatePatientReport = async (
     pdf.setFontSize(12);
     pdf.setFont('helvetica', 'normal');
     
+    // Calculate age
+    const calculateAge = (dateOfBirth: Date) => {
+      const today = new Date();
+      const birthDate = new Date(dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        age--;
+      }
+
+      if (age === 0) {
+        const months =
+          (today.getFullYear() - birthDate.getFullYear()) * 12 +
+          today.getMonth() -
+          birthDate.getMonth();
+        return months <= 1
+          ? `${Math.floor((today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24))} days`
+          : `${months} months`;
+      }
+
+      return `${age} year${age !== 1 ? "s" : ""}`;
+    };
+    
     const patientInfo = [
       `Name: ${child.name}`,
       `Date of Birth: ${format(child.dateOfBirth, 'MMM dd, yyyy')}`,
+      `Age: ${calculateAge(child.dateOfBirth)}`,
       `Gender: ${child.gender}`,
       `Parent/Guardian: ${child.parentName}`,
       `Contact: ${child.parentContact}`,
@@ -136,7 +164,7 @@ export const generatePatientReport = async (
       yPosition += 20;
     }
 
-    // Add QR Code for digital verification
+    // Add QR Code for digital verification in the middle
     try {
       const qrData = JSON.stringify({
         childId: child.id,
@@ -154,25 +182,25 @@ export const generatePatientReport = async (
         },
       });
       
-      // Position QR code on the right side
-      const qrSize = 30;
-      const qrX = pageWidth - qrSize - 20;
+      // Position QR code in the middle of the page
+      const qrSize = 40;
+      const qrX = (pageWidth - qrSize) / 2;
       
-      if (yPosition + qrSize > 280) {
+      if (yPosition + qrSize > 250) {
         pdf.addPage();
         yPosition = 20;
       }
       
       pdf.setFontSize(12);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Digital Verification', qrX, yPosition);
-      yPosition += 8;
+      pdf.text('Digital Verification', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 10;
       
       pdf.addImage(qrCodeDataURL, 'PNG', qrX, yPosition, qrSize, qrSize);
       
       pdf.setFontSize(8);
       pdf.setFont('helvetica', 'normal');
-      pdf.text('Scan for digital verification', qrX, yPosition + qrSize + 5);
+      pdf.text('Scan for digital verification', pageWidth / 2, yPosition + qrSize + 5, { align: 'center' });
       
     } catch (qrError) {
       console.warn('Could not generate QR code for PDF:', qrError);
@@ -196,4 +224,192 @@ export const generatePatientReport = async (
     console.error('Error generating PDF:', error);
     throw new Error('Failed to generate PDF report: ' + (error as Error).message);
   }
-};  
+};
+
+export const generateCombinedReport = async (
+  children: Child[],
+  allRecords: VaccinationRecord[]
+): Promise<void> => {
+  try {
+    console.log('Starting combined PDF generation for', children.length, 'children');
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    let yPosition = 20;
+
+    // Add logo
+    try {
+      const logoImg = new Image();
+      logoImg.crossOrigin = 'anonymous';
+      await new Promise((resolve, reject) => {
+        logoImg.onload = resolve;
+        logoImg.onerror = reject;
+        logoImg.src = '/kidcare.png';
+      });
+      
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      canvas.width = logoImg.width;
+      canvas.height = logoImg.height;
+      ctx?.drawImage(logoImg, 0, 0);
+      const logoDataUrl = canvas.toDataURL('image/png');
+      
+      pdf.addImage(logoDataUrl, 'PNG', 15, 10, 20, 20);
+    } catch (logoError) {
+      console.warn('Could not load logo:', logoError);
+    }
+
+    // Header
+    pdf.setFontSize(20);
+    pdf.setFont('helvetica', 'bold');
+    pdf.text('KidCare Chronicle', pageWidth / 2, 25, { align: 'center' });
+    yPosition = 35;
+    
+    pdf.setFontSize(14);
+    pdf.text('Combined Vaccination Report', pageWidth / 2, yPosition, { align: 'center' });
+    yPosition += 20;
+
+    // Summary
+    pdf.setFontSize(12);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(`Total Children: ${children.length}`, 20, yPosition);
+    yPosition += 6;
+    pdf.text(`Total Records: ${allRecords.length}`, 20, yPosition);
+    yPosition += 15;
+
+    // Calculate age function
+    const calculateAge = (dateOfBirth: Date) => {
+      const today = new Date();
+      const birthDate = new Date(dateOfBirth);
+      let age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+
+      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+      }
+
+      if (age === 0) {
+        const months = (today.getFullYear() - birthDate.getFullYear()) * 12 + today.getMonth() - birthDate.getMonth();
+        return months <= 1
+          ? `${Math.floor((today.getTime() - birthDate.getTime()) / (1000 * 60 * 60 * 24))} days`
+          : `${months} months`;
+      }
+
+      return `${age} year${age !== 1 ? "s" : ""}`;
+    };
+
+    // Process each child
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
+      const childRecords = allRecords.filter(r => r.childId === child.id);
+
+      if (yPosition > 250) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+
+      // Child header
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(`${i + 1}. ${child.name}`, 20, yPosition);
+      yPosition += 10;
+
+      // Child details
+      pdf.setFontSize(10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`Age: ${calculateAge(child.dateOfBirth)} | Gender: ${child.gender} | DOB: ${format(child.dateOfBirth, 'MM/dd/yyyy')}`, 20, yPosition);
+      yPosition += 6;
+      pdf.text(`Parent: ${child.parentName} | Contact: ${child.parentContact}`, 20, yPosition);
+      yPosition += 10;
+
+      // Vaccination records for this child
+      if (childRecords.length > 0) {
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text('Vaccine', 25, yPosition);
+        pdf.text('Dose', 70, yPosition);
+        pdf.text('Scheduled', 100, yPosition);
+        pdf.text('Status', 140, yPosition);
+        yPosition += 6;
+
+        pdf.setFont('helvetica', 'normal');
+        childRecords.forEach((record) => {
+          if (yPosition > 270) {
+            pdf.addPage();
+            yPosition = 20;
+          }
+
+          pdf.text(record.vaccineName.substring(0, 12), 25, yPosition);
+          pdf.text(record.doseNumber.toString(), 70, yPosition);
+          pdf.text(format(record.scheduledDate, 'MM/dd/yy'), 100, yPosition);
+          pdf.text(record.status.substring(0, 10), 140, yPosition);
+          yPosition += 5;
+        });
+      } else {
+        pdf.text('No vaccination records found.', 25, yPosition);
+        yPosition += 6;
+      }
+
+      yPosition += 10;
+    }
+
+    // Add QR Code in the middle for combined report
+    try {
+      const qrData = JSON.stringify({
+        type: 'combined_report',
+        childrenCount: children.length,
+        recordsCount: allRecords.length,
+        reportGenerated: new Date().toISOString()
+      });
+      
+      const qrCodeDataURL = await QRCode.toDataURL(qrData, {
+        width: 128,
+        margin: 2,
+        color: {
+          dark: '#000000',
+          light: '#FFFFFF',
+        },
+      });
+      
+      const qrSize = 40;
+      const qrX = (pageWidth - qrSize) / 2;
+      
+      if (yPosition + qrSize > 250) {
+        pdf.addPage();
+        yPosition = 20;
+      }
+      
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('Digital Verification', pageWidth / 2, yPosition, { align: 'center' });
+      yPosition += 10;
+      
+      pdf.addImage(qrCodeDataURL, 'PNG', qrX, yPosition, qrSize, qrSize);
+      
+      pdf.setFontSize(8);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Scan for digital verification', pageWidth / 2, yPosition + qrSize + 5, { align: 'center' });
+      
+    } catch (qrError) {
+      console.warn('Could not generate QR code for combined PDF:', qrError);
+    }
+
+    // Footer
+    yPosition = pdf.internal.pageSize.getHeight() - 20;
+    pdf.setFontSize(8);
+    pdf.setFont('helvetica', 'normal');
+    pdf.text(
+      `Combined Report Generated on ${format(new Date(), 'MMM dd, yyyy HH:mm')}`,
+      pageWidth / 2,
+      yPosition,
+      { align: 'center' }
+    );
+
+    // Save the PDF
+    console.log('Saving combined PDF...');
+    pdf.save(`KidCare_Combined_Report_${format(new Date(), 'yyyy-MM-dd')}.pdf`);
+    console.log('Combined PDF saved successfully');
+  } catch (error) {
+    console.error('Error generating combined PDF:', error);
+    throw new Error('Failed to generate combined PDF report: ' + (error as Error).message);
+  }
+};

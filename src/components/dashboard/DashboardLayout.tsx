@@ -1,7 +1,7 @@
 import React from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   LogOut,
   Baby,
@@ -10,8 +10,9 @@ import {
   FileText,
   BookOpen,
   Home,
+  UserCircle,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -21,6 +22,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
 }) => {
   const { userProfile, signOut } = useAuth();
+  const location = useLocation();
 
   const navigationItems = [
     { icon: Home, label: "Dashboard", path: "/dashboard" },
@@ -33,6 +35,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { icon: Calendar, label: "Vaccinations", path: "/vaccinations" },
     { icon: FileText, label: "Records", path: "/records" },
     { icon: BookOpen, label: "Education", path: "/education" },
+    { icon: UserCircle, label: "Profile", path: "/profile" },
   ];
 
   return (
@@ -65,6 +68,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Avatar className="h-8 w-8">
+                  <AvatarImage
+                    src={userProfile?.photoURL}
+                    alt={userProfile?.displayName}
+                  />
                   <AvatarFallback className="bg-primary text-primary-foreground">
                     {userProfile?.displayName.charAt(0).toUpperCase()}
                   </AvatarFallback>
