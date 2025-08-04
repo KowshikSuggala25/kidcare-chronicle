@@ -21,17 +21,9 @@ export const UserProfileModal: React.FC<UserProfileModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md p-0 bg-background/95 backdrop-blur-lg border border-border/50 shadow-2xl">
+      <DialogContent className="max-w-md p-0 bg-background/95 backdrop-blur-lg border border-border/50 shadow-2xl rounded-xl overflow-hidden">
         {/* Header with close button */}
         <div className="relative bg-gradient-primary p-6 text-white">
-          <Button
-            onClick={onClose}
-            variant="ghost"
-            size="sm"
-            className="absolute top-4 right-4 text-white hover:bg-white/20"
-          >
-            <X className="h-4 w-4" />
-          </Button>
           
           <div className="flex flex-col items-center space-y-4">
             <Avatar className="h-20 w-20 border-4 border-white/20">

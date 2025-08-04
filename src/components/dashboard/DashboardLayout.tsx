@@ -37,7 +37,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
     { icon: Calendar, label: "Vaccinations", path: "/vaccinations" },
     { icon: FileText, label: "Records", path: "/records" },
     { icon: BookOpen, label: "Education", path: "/education" },
-    { icon: UserCircle, label: "Profile", path: "/profile" },
+    { icon: UserCircle, label: "Settings", path: "/profile" },
   ];
 
   return (
