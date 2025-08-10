@@ -14,5 +14,6 @@ This project is built with:
   
 <h3>The public URL version of this project is <a href="https://immunization-tracker-966d8.web.app/">KidCare Chronicle</a> or use scan this QR below and Login 
 </h3>
-<centre><img width="300" height="507" alt="frame (2)" src="https://github.com/user-attachments/assets/ee115fbf-f6c8-46c1-96c5-d39ba52e75fc" />
+<centre>
+  <img width="1148" height="1148" alt="qr-code" src="https://github.com/user-attachments/assets/7467d12a-8150-4448-8a60-4b352c18c640" />
 </centre>
