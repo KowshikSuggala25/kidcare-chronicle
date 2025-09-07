@@ -91,17 +91,6 @@ export const PatientDetailsModal: React.FC<PatientDetailsModalProps> = ({
             </div>
             Patient Details
           </DialogTitle>
-<<<<<<< HEAD
-=======
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={onClose}
-            className="h-8 w-8 p-0 rounded-full hover:bg-muted/50"
-          >
-            <X className="h-4 w-4" />
-          </Button>
->>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
         </DialogHeader>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 py-6 max-h-[calc(90vh-8rem)] overflow-y-auto">

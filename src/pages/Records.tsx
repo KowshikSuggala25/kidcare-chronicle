@@ -22,18 +22,17 @@ const Records = () => {
     const fetchData = async () => {
       if (!userProfile) return;
 
-    const [selectedChild, setSelectedChild] = useState<string>("all");
-    const [selectedMonth, setSelectedMonth] = useState<string>("all");
-    const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
-        if (userProfile.role === "parent") {
-          childrenQuery = query(
-            collection(db, "children"),
-            where("parentId", "==", userProfile.id)
-          );
-        } else {
-          childrenQuery = query(collection(db, "children"));
-        }
+      let childrenQuery;
+      if (userProfile.role === "parent") {
+        childrenQuery = query(
+          collection(db, "children"),
+          where("parentId", "==", userProfile.id)
+        );
+      } else {
+        childrenQuery = query(collection(db, "children"));
+      }
 
+      try {
         const childrenSnapshot = await getDocs(childrenQuery);
         const childrenData = childrenSnapshot.docs.map((doc) => {
           const data = doc.data() as any;
@@ -99,11 +98,7 @@ const Records = () => {
     try {
       if (childId) {
         // Export specific child's records
-<<<<<<< HEAD
         const child = children.find(c => c.id === childId);
-=======
-        const child = children.find((c) => c.id === childId);
->>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
         if (!child) {
           toast({
             title: "Error",
@@ -112,26 +107,17 @@ const Records = () => {
           });
           return;
         }
-<<<<<<< HEAD
         
         const childRecords = records.filter(r => r.childId === childId);
         const { generatePatientReport } = await import('@/services/pdfService');
         await generatePatientReport(child, childRecords);
         
-=======
-
-        const childRecords = records.filter((r) => r.childId === childId);
-        const { generatePatientReport } = await import("@/services/pdfService");
-        await generatePatientReport(child, childRecords);
-
->>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
         toast({
           title: "Export Complete",
           description: `${child.name}'s vaccination report has been downloaded.`,
         });
       } else {
         // Export all records in one combined report
-<<<<<<< HEAD
         const { generateCombinedReport } = await import('@/services/pdfService');
         await generateCombinedReport(children, records);
         
@@ -142,21 +128,6 @@ const Records = () => {
       }
     } catch (error) {
       console.error('Error exporting records:', error);
-=======
-        const { generateCombinedReport } = await import(
-          "@/services/pdfService"
-        );
-        await generateCombinedReport(children, records);
-
-        toast({
-          title: "Export Complete",
-          description:
-            "Combined vaccination report for all children has been downloaded.",
-        });
-      }
-    } catch (error) {
-      console.error("Error exporting records:", error);
->>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
       toast({
         title: "Export Failed",
         description: "Failed to generate PDF report. Please try again.",
@@ -173,6 +144,11 @@ const Records = () => {
     return childRecords.length > 0
       ? Math.round((completed / childRecords.length) * 100)
       : 0;
+  };
+
+  const getChildName = (childId: string) => {
+    const child = children.find((c) => c.id === childId);
+    return child ? child.name : "Unknown Child";
   };
 
   if (loading) {
@@ -202,27 +178,6 @@ const Records = () => {
           </Button>
         </div>
 
-<<<<<<< HEAD
-=======
-        {/* Child Filter */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedChild === "all" ? "default" : "outline"}
-            onClick={() => setSelectedChild("all")}
-          >
-            All Children
-          </Button>
-          {children.map((child) => (
-            <Button
-              key={child.id}
-              variant={selectedChild === child.id ? "default" : "outline"}
-              onClick={() => setSelectedChild(child.id)}
-            >
-              {child.name}
-            </Button>
-          ))}
-        </div>
->>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
