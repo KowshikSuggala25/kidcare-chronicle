@@ -71,7 +71,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         createdAt: currentTime,
         updatedAt: currentTime,
         passwordChangedAt: currentTime,
-        phoneVerified: false,
         ...userData,
       };
 

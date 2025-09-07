@@ -63,8 +63,21 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onSwitch }) => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="pr-10 pl-3 [&+svg]:hidden"
+            className="pr-10"
           />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+            onClick={() => setShowPassword(!showPassword)}
+          >
+            {showPassword ? (
+              <EyeOff className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <Eye className="h-4 w-4 text-muted-foreground" />
+            )}
+          </Button>
         </div>
       </div>
 

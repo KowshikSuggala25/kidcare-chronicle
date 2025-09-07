@@ -1,7 +1,5 @@
 {
   "projects": {
     "default": "immunization-tracker-966d8"
-  },
-  "targets": {},
-  "etags": {}
+  }
 }

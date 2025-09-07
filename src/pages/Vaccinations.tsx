@@ -10,8 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
+<<<<<<< HEAD
 import { VaccinationStatusMenu } from '@/components/vaccinations/VaccinationStatusMenu';
 import { Calendar, Filter } from 'lucide-react';
+=======
+import { VaccinationStatusMenu } from '../components/vaccinations/VaccinationStatusMenu';
+>>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
 
 const Vaccinations = () => {
   const [vaccinations, setVaccinations] = useState<VaccinationRecord[]>([]);
@@ -124,6 +128,7 @@ const Vaccinations = () => {
   };
 
   const handleStatusChange = (vaccinationId: string, newStatus: string) => {
+<<<<<<< HEAD
     const updatedVaccinations = vaccinations.map(v => 
       v.id === vaccinationId 
         ? { ...v, status: newStatus as "scheduled" | "ongoing" | "completed" | "missed" | "overdue", updatedAt: new Date() }
@@ -147,6 +152,17 @@ const Vaccinations = () => {
     'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
+=======
+    setVaccinations(prev => 
+      prev.map(v => 
+        v.id === vaccinationId 
+          ? { ...v, status: newStatus as "scheduled" | "completed" | "missed" | "overdue", updatedAt: new Date() }
+          : v
+      )
+    );
+  };
+
+>>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
   const getStatusVariant = (status: string) => {
     switch (status) {
       case 'completed':
@@ -212,7 +228,10 @@ const Vaccinations = () => {
                         <VaccinationStatusMenu 
                           vaccination={vaccination}
                           onStatusChange={handleStatusChange}
+<<<<<<< HEAD
                           children={children}
+=======
+>>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
                         />
                       )}
                     </div>
