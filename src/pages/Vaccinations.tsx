@@ -1,20 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { VaccinationRecord, Child } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
-import { VaccinationStatusMenu } from '../components/vaccinations/VaccinationStatusMenu';
+import { VaccinationStatusMenu } from '@/components/vaccinations/VaccinationStatusMenu';
+import { Calendar, Filter } from 'lucide-react';
 
 const Vaccinations = () => {
   const [vaccinations, setVaccinations] = useState<VaccinationRecord[]>([]);
+  const [filteredVaccinations, setFilteredVaccinations] = useState<VaccinationRecord[]>([]);
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
+  const [monthFilter, setMonthFilter] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('');
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -70,6 +78,7 @@ const Vaccinations = () => {
           })) as VaccinationRecord[];
           
           setVaccinations(vaccinationsData);
+          setFilteredVaccinations(vaccinationsData);
         }
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -86,20 +95,59 @@ const Vaccinations = () => {
     fetchData();
   }, [userProfile, toast]);
 
+  useEffect(() => {
+    let filtered = [...vaccinations];
+    
+    // Apply month filter
+    if (monthFilter) {
+      const month = parseInt(monthFilter);
+      filtered = filtered.filter(v => 
+        v.scheduledDate.getMonth() === month
+      );
+    }
+    
+    // Apply date filter
+    if (dateFilter) {
+      const selectedDate = new Date(dateFilter);
+      filtered = filtered.filter(v => 
+        v.scheduledDate.toDateString() === selectedDate.toDateString()
+      );
+    }
+    
+    // Sort by date
+    filtered.sort((a, b) => a.scheduledDate.getTime() - b.scheduledDate.getTime());
+    
+    setFilteredVaccinations(filtered);
+  }, [vaccinations, monthFilter, dateFilter]);
+
   const getChildName = (childId: string) => {
     const child = children.find(c => c.id === childId);
     return child?.name || 'Unknown Child';
   };
 
   const handleStatusChange = (vaccinationId: string, newStatus: string) => {
-    setVaccinations(prev => 
-      prev.map(v => 
-        v.id === vaccinationId 
-          ? { ...v, status: newStatus as "scheduled" | "completed" | "missed" | "overdue", updatedAt: new Date() }
-          : v
-      )
+    const updatedVaccinations = vaccinations.map(v => 
+      v.id === vaccinationId 
+        ? { ...v, status: newStatus as "scheduled" | "ongoing" | "completed" | "missed" | "overdue", updatedAt: new Date() }
+        : v
     );
+    setVaccinations(updatedVaccinations);
   };
+
+  const handleSearchResults = (results: VaccinationRecord[]) => {
+    setFilteredVaccinations(results);
+  };
+
+  const clearFilters = () => {
+    setMonthFilter('');
+    setDateFilter('');
+    setFilteredVaccinations(vaccinations);
+  };
+
+  const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
 
   const getStatusVariant = (status: string) => {
     switch (status) {
@@ -107,6 +155,8 @@ const Vaccinations = () => {
         return 'default';
       case 'scheduled':
         return 'secondary';
+      case 'ongoing':
+        return 'default';
       case 'overdue':
         return 'destructive';
       case 'missed':
@@ -130,14 +180,15 @@ const Vaccinations = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Vaccinations</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('vaccinations.title')}</h1>
           <p className="text-muted-foreground mt-1">
-            Track vaccination schedules and records
+            {t('vaccinations.schedule')} and {t('vaccinations.history')}
           </p>
         </div>
 
+
         <div className="grid gap-6">
-          {vaccinations.length === 0 ? (
+          {filteredVaccinations.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
                 <svg className="h-12 w-12 text-muted-foreground mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -148,7 +199,7 @@ const Vaccinations = () => {
               </CardContent>
             </Card>
           ) : (
-            vaccinations.map((vaccination) => (
+            filteredVaccinations.map((vaccination) => (
               <Card key={vaccination.id}>
                 <CardHeader>
                   <div className="flex items-center justify-between">
@@ -190,7 +241,9 @@ const Vaccinations = () => {
                     {vaccination.administeredBy && (
                       <div>
                         <p className="text-sm font-medium text-foreground">Administered By</p>
-                        <p className="text-sm text-muted-foreground">{vaccination.administeredBy}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {vaccination.administeredByName || vaccination.administeredBy || 'N/A'}
+                        </p>
                       </div>
                     )}
                     {vaccination.location && (

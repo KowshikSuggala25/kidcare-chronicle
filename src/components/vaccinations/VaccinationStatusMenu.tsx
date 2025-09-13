@@ -40,7 +40,7 @@ export const VaccinationStatusMenu: React.FC<VaccinationStatusMenuProps> = ({
         description: `Vaccination status changed to ${newStatus}`,
       });
     } catch (error) {
-      console.error("Error updating vaccination status:", error);
+  console.error("Error updating vaccination status:", error);
       toast({
         title: "Error",
         description: "Failed to update vaccination status",

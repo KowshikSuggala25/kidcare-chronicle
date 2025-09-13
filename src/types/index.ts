@@ -1,13 +1,17 @@
+export type Language = 'en' | 'hi' | 'te' | 'ta' | 'ml';
+
 export interface User {
   id: string;
   email: string;
-  phoneNumber?: string;
+  phoneNumber: string;
   displayName: string;
   photoURL?: string;
   role: 'parent' | 'healthcare_worker';
+  language?: Language;
   createdAt: Date | any;
   updatedAt: Date | any;
   passwordChangedAt?: Date | any;
+  phoneVerified?: boolean;
 }
 
 export interface Child {
@@ -50,10 +54,11 @@ export interface VaccinationRecord {
   scheduledDate: Date;
   administeredDate?: Date;
   administeredBy?: string;
+  administeredByName?: string;
   healthcareWorkerId?: string;
   location?: string;
   batchNumber?: string;
-  status: 'scheduled' | 'completed' | 'missed' | 'overdue';
+  status: 'scheduled' | 'ongoing' | 'completed' | 'missed' | 'overdue';
   notes?: string;
   sideEffectsReported?: string[];
   createdAt: Date;

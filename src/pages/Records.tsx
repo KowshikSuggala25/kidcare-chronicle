@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { VaccinationRecord, Child } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -16,24 +17,24 @@ const Records = () => {
   const [selectedChild, setSelectedChild] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchData = async () => {
       if (!userProfile) return;
 
-      try {
-        // Fetch children based on user role
-        let childrenQuery;
-        if (userProfile.role === "parent") {
-          childrenQuery = query(
-            collection(db, "children"),
-            where("parentId", "==", userProfile.id)
-          );
-        } else {
-          childrenQuery = query(collection(db, "children"));
-        }
+      let childrenQuery;
+      if (userProfile.role === "parent") {
+        childrenQuery = query(
+          collection(db, "children"),
+          where("parentId", "==", userProfile.id)
+        );
+      } else {
+        childrenQuery = query(collection(db, "children"));
+      }
 
+      try {
         const childrenSnapshot = await getDocs(childrenQuery);
         const childrenData = childrenSnapshot.docs.map((doc) => {
           const data = doc.data() as any;
@@ -95,16 +96,11 @@ const Records = () => {
       ? records
       : records.filter((record) => record.childId === selectedChild);
 
-  const getChildName = (childId: string) => {
-    const child = children.find((c) => c.id === childId);
-    return child?.name || "Unknown Child";
-  };
-
   const handleExportRecords = async (childId?: string) => {
     try {
       if (childId) {
         // Export specific child's records
-        const child = children.find((c) => c.id === childId);
+        const child = children.find(c => c.id === childId);
         if (!child) {
           toast({
             title: "Error",
@@ -113,30 +109,27 @@ const Records = () => {
           });
           return;
         }
-
-        const childRecords = records.filter((r) => r.childId === childId);
-        const { generatePatientReport } = await import("@/services/pdfService");
+        
+        const childRecords = records.filter(r => r.childId === childId);
+        const { generatePatientReport } = await import('@/services/pdfService');
         await generatePatientReport(child, childRecords);
-
+        
         toast({
           title: "Export Complete",
           description: `${child.name}'s vaccination report has been downloaded.`,
         });
       } else {
         // Export all records in one combined report
-        const { generateCombinedReport } = await import(
-          "@/services/pdfService"
-        );
+        const { generateCombinedReport } = await import('@/services/pdfService');
         await generateCombinedReport(children, records);
-
+        
         toast({
           title: "Export Complete",
-          description:
-            "Combined vaccination report for all children has been downloaded.",
+          description: "Combined vaccination report for all children has been downloaded.",
         });
       }
     } catch (error) {
-      console.error("Error exporting records:", error);
+      console.error('Error exporting records:', error);
       toast({
         title: "Export Failed",
         description: "Failed to generate PDF report. Please try again.",
@@ -155,6 +148,11 @@ const Records = () => {
       : 0;
   };
 
+  const getChildName = (childId: string) => {
+    const child = children.find((c) => c.id === childId);
+    return child ? child.name : "Unknown Child";
+  };
+
   if (loading) {
     return (
       <DashboardLayout>
@@ -171,35 +169,17 @@ const Records = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Vaccination Records
+              {t('records.title')}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Complete vaccination history and reports
+              {t('records.vaccinationHistory')} and {t('records.downloadReport')}
             </p>
           </div>
           <Button onClick={() => handleExportRecords()}>
-            Export All Records
+            {t('records.downloadReport')}
           </Button>
         </div>
 
-        {/* Child Filter */}
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant={selectedChild === "all" ? "default" : "outline"}
-            onClick={() => setSelectedChild("all")}
-          >
-            All Children
-          </Button>
-          {children.map((child) => (
-            <Button
-              key={child.id}
-              variant={selectedChild === child.id ? "default" : "outline"}
-              onClick={() => setSelectedChild(child.id)}
-            >
-              {child.name}
-            </Button>
-          ))}
-        </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

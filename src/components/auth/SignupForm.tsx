@@ -23,6 +23,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitch }) => {
     password: "",
     confirmPassword: "",
     displayName: "",
+    phoneNumber: "",
     role: "parent" as "parent" | "healthcare_worker",
   });
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +49,7 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitch }) => {
     try {
       await signUp(formData.email, formData.password, {
         displayName: formData.displayName,
+        phoneNumber: formData.phoneNumber,
         role: formData.role,
       });
       toast({
@@ -88,6 +90,18 @@ export const SignupForm: React.FC<SignupFormProps> = ({ onSwitch }) => {
           placeholder="Enter your email"
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          required
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="phoneNumber">Mobile Number</Label>
+        <Input
+          id="phoneNumber"
+          type="tel"
+          placeholder="Enter your mobile number"
+          value={formData.phoneNumber}
+          onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
           required
         />
       </div>

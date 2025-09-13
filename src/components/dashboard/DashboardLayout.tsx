@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { UserProfileModal } from "@/components/profile/UserProfileModal";
+import { LanguageToggle } from "@/components/common/LanguageToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -23,21 +25,22 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   children,
 }) => {
   const { userProfile, signOut } = useAuth();
+  const { t } = useLanguage();
   const location = useLocation();
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   const navigationItems = [
-    { icon: Home, label: "Dashboard", path: "/dashboard" },
+    { icon: Home, label: t('nav.dashboard'), path: "/dashboard" },
     {
       icon: Users,
       label:
-        userProfile?.role === "healthcare_worker" ? "All Patients" : "Children",
+        userProfile?.role === "healthcare_worker" ? "All Patients" : t('nav.children'),
       path: "/children",
     },
-    { icon: Calendar, label: "Vaccinations", path: "/vaccinations" },
-    { icon: FileText, label: "Records", path: "/records" },
-    { icon: BookOpen, label: "Education", path: "/education" },
-    { icon: UserCircle, label: "Profile", path: "/profile" },
+    { icon: Calendar, label: t('nav.vaccinations'), path: "/vaccinations" },
+    { icon: FileText, label: t('nav.records'), path: "/records" },
+    { icon: BookOpen, label: t('nav.education'), path: "/education" },
+    { icon: UserCircle, label: t('nav.profile'), path: "/profile" },
   ];
 
   return (
@@ -67,7 +70,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               </h1>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-3">
+              <LanguageToggle />
               <div 
                 className="flex items-center space-x-2 cursor-pointer hover:bg-muted/50 rounded-lg p-2 transition-colors"
                 onClick={() => setIsProfileModalOpen(true)}

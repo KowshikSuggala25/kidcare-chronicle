@@ -22,6 +22,7 @@ import { Child } from "@/types";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Edit3, Loader2, Save } from "lucide-react";
 
 interface EditChildDialogProps {
@@ -35,6 +36,7 @@ export const EditChildDialog: React.FC<EditChildDialogProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { t } = useLanguage();
   const { toast } = useToast();
   
   const [formData, setFormData] = useState({
@@ -111,7 +113,7 @@ export const EditChildDialog: React.FC<EditChildDialogProps> = ({
       <DialogTrigger asChild>
         <Button size="sm" variant="outline">
           <Edit3 className="h-4 w-4 mr-2" />
-          Edit
+          {t('common.edit')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">

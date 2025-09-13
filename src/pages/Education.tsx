@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -160,16 +161,17 @@ const faqData = [
 
 const Education = () => {
   const [selectedVaccine, setSelectedVaccine] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   return (
     <DashboardLayout>
       <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold text-foreground">
-            Vaccination Education
+            {t('education.title')}
           </h1>
           <p className="text-muted-foreground mt-1">
-            Learn about vaccines, schedules, and make informed decisions
+            {t('education.vaccinationInfo')} and {t('education.resources')}
           </p>
         </div>
 

@@ -66,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         id: user.uid,
         email: user.email!,
         displayName: userData.displayName || "",
+        phoneNumber: userData.phoneNumber || "",
         role: userData.role || "parent",
         createdAt: currentTime,
         updatedAt: currentTime,

@@ -12,24 +12,27 @@ export interface QRCodeData {
   usedAt?: Date;
 }
 
-export const generateUniqueQR = async (child: Child): Promise<string> => {
+export const generateUniqueQR = async (child: Child, healthWorkerName?: string): Promise<string> => {
   try {
     console.log('Starting QR generation for child:', child.name);
+    const currentTime = new Date();
+    
     // Create a unique QR record in Firebase
     const qrData = {
       childId: child.id,
       data: {
         name: child.name,
-        dateOfBirth: child.dateOfBirth,
-        gender: child.gender,
+        issue: child.allergies?.length ? child.allergies.join(', ') : 'No known allergies',
         parentName: child.parentName,
         parentContact: child.parentContact,
-        medicalRecordNumber: child.medicalRecordNumber || null,
-        allergies: child.allergies || null,
-        notes: child.notes || null,
+        dateOfBirth: child.dateOfBirth,
+        gender: child.gender,
+        medicalRecordNumber: child.medicalRecordNumber || 'N/A',
+        generatedOn: currentTime.toISOString(),
+        generatedBy: healthWorkerName || 'System',
       },
       isUsed: false,
-      createdAt: new Date(),
+      createdAt: currentTime,
     };
 
     console.log('QR data created, adding to Firebase...');
@@ -55,7 +58,7 @@ export const generateUniqueQR = async (child: Child): Promise<string> => {
   }
 };
 
-export const scanQRCode = async (qrId: string): Promise<any> => {
+export const scanQRCode = async (qrId: string, healthWorkerId?: string): Promise<any> => {
   try {
     const qrDoc = await getDoc(doc(db, 'qrCodes', qrId));
     
@@ -73,11 +76,45 @@ export const scanQRCode = async (qrId: string): Promise<any> => {
     await updateDoc(doc(db, 'qrCodes', qrId), {
       isUsed: true,
       usedAt: new Date(),
+      scannedBy: healthWorkerId,
     });
+
+    // Auto-complete vaccination status if health worker scanned
+    if (healthWorkerId) {
+      await autoCompleteVaccination(qrData.childId, healthWorkerId);
+    }
 
     return qrData.data;
   } catch (error) {
     console.error('Error scanning QR code:', error);
     throw error;
+  }
+};
+
+const autoCompleteVaccination = async (childId: string, healthWorkerId: string) => {
+  try {
+    // Find pending vaccinations for this child
+    const { collection, query, where, getDocs, updateDoc, doc } = await import('firebase/firestore');
+    
+    const vaccinationsQuery = query(
+      collection(db, 'vaccinations'),
+      where('childId', '==', childId),
+      where('status', '==', 'scheduled')
+    );
+    
+    const snapshot = await getDocs(vaccinationsQuery);
+    
+    // Update the most recent scheduled vaccination to completed
+    if (!snapshot.empty) {
+      const latestVaccination = snapshot.docs[0];
+      await updateDoc(doc(db, 'vaccinations', latestVaccination.id), {
+        status: 'completed',
+        administeredDate: new Date(),
+        healthcareWorkerId: healthWorkerId,
+        updatedAt: new Date(),
+      });
+    }
+  } catch (error) {
+    console.error('Error auto-completing vaccination:', error);
   }
 };

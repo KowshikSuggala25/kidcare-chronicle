@@ -11,6 +11,7 @@ import { getVaccinationRecords } from "@/services/vaccinationService";
 import { useToast } from "@/hooks/use-toast";
 import { EditChildDialog } from "./EditChildDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ChildCardProps {
   child: Child;
@@ -26,6 +27,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
 
   const calculateAge = (dateOfBirth: Date) => {
     const today = new Date();
@@ -157,7 +159,7 @@ export const ChildCard: React.FC<ChildCardProps> = ({
             className="flex-1"
             disabled={loading}
           >
-            View Details
+            {t('children.viewDetails')}
           </Button>
           {userProfile?.role === 'parent' && onChildUpdated && (
             <EditChildDialog child={child} onChildUpdated={onChildUpdated} />

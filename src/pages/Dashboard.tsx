@@ -3,6 +3,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { ChildCard } from "../components/children/ChildCard";
 import { AddChildDialog } from "@/components/children/AddChildDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Child } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { collection, query, where, getDocs, addDoc } from "firebase/firestore";
@@ -15,6 +16,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({ completed: 0, upcoming: 0, overdue: 0 });
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -148,12 +150,12 @@ const Dashboard = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Welcome back, {userProfile?.displayName}
+              {t('dashboard.welcome')}, {userProfile?.displayName}
             </h1>
             <p className="text-muted-foreground mt-1">
               {userProfile?.role === "parent"
-                ? "Manage your children's vaccination records"
-                : "Access patient vaccination records"}
+                ? t('dashboard.manageChildrenRecords')
+                : t('dashboard.accessPatientRecords')}
             </p>
           </div>
           {userProfile?.role === "parent" && (
@@ -167,7 +169,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Total Children
+                  {t('dashboard.totalChildren')}
                 </p>
                 <p className="text-2xl font-bold text-foreground">
                   {children.length}
@@ -195,7 +197,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Upcoming Vaccines
+                  {t('dashboard.upcomingVaccines')}
                 </p>
                 <p className="text-2xl font-bold text-warning">
                   {stats.upcoming}
@@ -223,7 +225,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
-                  Completed Vaccines
+                  {t('dashboard.completedVaccines')}
                 </p>
                 <p className="text-2xl font-bold text-success">
                   {stats.completed}
@@ -252,8 +254,8 @@ const Dashboard = () => {
         <div>
           <h2 className="text-xl font-semibold text-foreground mb-4">
             {userProfile?.role === "parent"
-              ? "Your Children"
-              : "Recent Patients"}
+              ? t('dashboard.yourChildren')
+              : t('dashboard.recentPatients')}
           </h2>
 
           {children.length === 0 ? (
@@ -273,13 +275,13 @@ const Dashboard = () => {
               </svg>
               <h3 className="mt-4 text-lg font-medium text-foreground">
                 {userProfile?.role === "parent"
-                  ? "No children added yet"
-                  : "No patient records added yet"}
+                  ? t('dashboard.noChildrenYet')
+                  : t('dashboard.noPatientRecords')}
               </h3>
               <p className="mt-2 text-muted-foreground">
                 {userProfile?.role === "parent"
-                  ? "Add your first child to start tracking their vaccination journey."
-                  : "Patient records will appear here once added."}
+                  ? t('dashboard.addFirstChild')
+                  : t('dashboard.patientsWillAppear')}
               </p>
               {userProfile?.role === "parent" && (
                 <div className="mt-6">
