@@ -8,10 +8,7 @@ export interface User {
   createdAt: Date | any;
   updatedAt: Date | any;
   passwordChangedAt?: Date | any;
-<<<<<<< HEAD
   phoneVerified?: boolean;
-=======
->>>>>>> 0f3274a6429c14c465711ac7d7d91d08a8a892df
 }
 
 export interface Child {
