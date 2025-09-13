@@ -1,3 +1,5 @@
+export type Language = 'en' | 'hi' | 'te' | 'ta' | 'ml';
+
 export interface User {
   id: string;
   email: string;
@@ -5,6 +7,7 @@ export interface User {
   displayName: string;
   photoURL?: string;
   role: 'parent' | 'healthcare_worker';
+  language?: Language;
   createdAt: Date | any;
   updatedAt: Date | any;
   passwordChangedAt?: Date | any;

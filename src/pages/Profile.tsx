@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { User, Camera, Shield, Save, X, Edit3 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +14,13 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { generateUniqueQR } from "@/services/qrService";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { Language } from "@/types";
 
 export const Profile: React.FC = () => {
   const { currentUser, userProfile } = useAuth();
+  const { t, currentLanguage, setLanguage } = useLanguage();
   const { toast } = useToast();
   const [isEditing, setIsEditing] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
@@ -26,6 +30,7 @@ export const Profile: React.FC = () => {
   const [editFormData, setEditFormData] = useState({
     displayName: userProfile?.displayName || "",
     photoURL: userProfile?.photoURL || "",
+    language: userProfile?.language || 'en' as Language,
   });
   const [passwordData, setPasswordData] = useState({
     currentPassword: "",
@@ -84,11 +89,17 @@ export const Profile: React.FC = () => {
       await updateDoc(doc(db, "users", currentUser.uid), {
         displayName: editFormData.displayName,
         photoURL: editFormData.photoURL,
+        language: editFormData.language,
         updatedAt: new Date(),
       });
 
+      // Update language context if changed
+      if (editFormData.language !== currentLanguage) {
+        setLanguage(editFormData.language);
+      }
+
       toast({
-        title: "Profile Updated",
+        title: t('profile.title') + " " + t('common.save'),
         description: "Your profile has been successfully updated.",
       });
 
@@ -107,6 +118,7 @@ export const Profile: React.FC = () => {
     setEditFormData({
       displayName: userProfile?.displayName || "",
       photoURL: userProfile?.photoURL || "",
+      language: userProfile?.language || 'en' as Language,
     });
     setProfileImage(null);
     setIsEditing(false);
@@ -185,7 +197,7 @@ export const Profile: React.FC = () => {
       <div className="max-w-4xl">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">Profile</h1>
+            <h1 className="text-3xl font-bold text-foreground">{t('profile.title')}</h1>
             <p className="text-muted-foreground">Manage your account settings and preferences</p>
           </div>
           <Badge variant="outline" className="capitalize">
@@ -253,7 +265,7 @@ export const Profile: React.FC = () => {
               <CardTitle className="flex items-center justify-between">
                 <span className="flex items-center space-x-2">
                   <User className="h-5 w-5" />
-                  <span>Personal Information</span>
+                  <span>{t('profile.personalInfo')}</span>
                 </span>
                 {!isEditing ? (
                   <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
@@ -277,7 +289,7 @@ export const Profile: React.FC = () => {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="displayName">Display Name</Label>
+                  <Label htmlFor="displayName">{t('profile.displayName')}</Label>
                   {isEditing ? (
                     <Input
                       id="displayName"
@@ -294,9 +306,42 @@ export const Profile: React.FC = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t('profile.email')}</Label>
                   <p className="text-sm text-muted-foreground">{userProfile.email}</p>
                 </div>
+
+                {userProfile.role === 'parent' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="language">{t('profile.language')}</Label>
+                    {isEditing ? (
+                      <Select
+                        value={editFormData.language}
+                        onValueChange={(value: Language) =>
+                          setEditFormData({ ...editFormData, language: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select language" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en">{t('language.english')}</SelectItem>
+                          <SelectItem value="hi">{t('language.hindi')}</SelectItem>
+                          <SelectItem value="te">{t('language.telugu')}</SelectItem>
+                          <SelectItem value="ta">{t('language.tamil')}</SelectItem>
+                          <SelectItem value="ml">{t('language.malayalam')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">
+                        {currentLanguage === 'en' && t('language.english')}
+                        {currentLanguage === 'hi' && t('language.hindi')}
+                        {currentLanguage === 'te' && t('language.telugu')}
+                        {currentLanguage === 'ta' && t('language.tamil')}
+                        {currentLanguage === 'ml' && t('language.malayalam')}
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
               <div className="text-sm text-muted-foreground">
