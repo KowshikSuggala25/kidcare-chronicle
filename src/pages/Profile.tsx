@@ -7,11 +7,21 @@ import { User, Camera, Shield, Save, X, Edit3 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { doc, updateDoc } from "firebase/firestore";
-import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from "firebase/auth";
+import {
+  updatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
+} from "firebase/auth";
 import { db } from "@/lib/firebase";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { generateUniqueQR } from "@/services/qrService";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 
@@ -43,30 +53,30 @@ export const Profile: React.FC = () => {
 
   const handleGenerateQR = async () => {
     if (!userProfile) return;
-    
+
     setIsGeneratingQR(true);
     try {
       const childData = {
         id: userProfile.id,
         name: userProfile.displayName,
         dateOfBirth: new Date(),
-        gender: 'other' as const,
+        gender: "other" as const,
         parentId: userProfile.id,
         parentName: userProfile.displayName,
         parentContact: userProfile.email,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      
+
       const qrDataUrl = await generateUniqueQR(childData);
       setQrCodeImage(qrDataUrl);
-      
+
       toast({
         title: "QR Code Generated",
         description: "Your QR code has been generated successfully.",
       });
     } catch (error) {
-      console.error('Error generating QR code:', error);
+      console.error("Error generating QR code:", error);
       toast({
         title: "Error",
         description: "Failed to generate QR code. Please try again.",
@@ -155,7 +165,7 @@ export const Profile: React.FC = () => {
     } catch (error: any) {
       console.error("Error changing password:", error);
       let errorMessage = "Failed to change password.";
-      
+
       if (error.code === "auth/wrong-password") {
         errorMessage = "Current password is incorrect.";
       } else if (error.code === "auth/weak-password") {
@@ -186,7 +196,9 @@ export const Profile: React.FC = () => {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="text-3xl font-bold text-foreground">Profile</h1>
-            <p className="text-muted-foreground">Manage your account settings and preferences</p>
+            <p className="text-muted-foreground">
+              Manage your account settings and preferences
+            </p>
           </div>
           <Badge variant="outline" className="capitalize">
             {userProfile.role}
@@ -194,58 +206,62 @@ export const Profile: React.FC = () => {
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-        {/* Profile Image Card */}
-        <Card className="md:col-span-1">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <User className="h-5 w-5" />
-              <span>Profile Image</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="text-center space-y-4">
-            <Avatar className="h-24 w-24 mx-auto">
-              <AvatarImage src={userProfile.photoURL || undefined} />
-              <AvatarFallback className="text-2xl">
-                {userProfile.displayName?.charAt(0)?.toUpperCase() || "U"}
-              </AvatarFallback>
-            </Avatar>
-            
-            {/* QR Code Display */}
-            {qrCodeImage && (
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Your QR Code</p>
-                <div className="mx-auto w-32 h-32 border rounded-lg overflow-hidden">
-                  <img src={qrCodeImage} alt="QR Code" className="w-full h-full object-contain" />
+          {/* Profile Image Card */}
+          <Card className="md:col-span-1">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2">
+                <User className="h-5 w-5" />
+                <span>Profile Image</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <Avatar className="h-24 w-24 mx-auto">
+                <AvatarImage src={userProfile.photoURL || undefined} />
+                <AvatarFallback className="text-2xl">
+                  {userProfile.displayName?.charAt(0)?.toUpperCase() || "U"}
+                </AvatarFallback>
+              </Avatar>
+
+              {/* QR Code Display */}
+              {qrCodeImage && (
+                <div className="space-y-2">
+                  <p className="text-sm text-muted-foreground">Your QR Code</p>
+                  <div className="mx-auto w-32 h-32 border rounded-lg overflow-hidden">
+                    <img
+                      src={qrCodeImage}
+                      alt="QR Code"
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
-            
-            {userProfile.role === 'healthcare_worker' && (
-              <Button
-                onClick={handleGenerateQR}
-                disabled={isGeneratingQR}
-                variant="outline"
-                size="sm"
-                className="w-full"
-              >
-                {isGeneratingQR ? 'Generating...' : 'Generate QR Code'}
-              </Button>
-            )}
-            
-            {isEditing && (
-              <div className="space-y-2">
-                <Label htmlFor="profileImage">Profile Picture</Label>
-                <Input
-                  id="profileImage"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="cursor-pointer"
-                />
-              </div>
-            )}
-          </CardContent>
-        </Card>
+              )}
+
+              {userProfile.role === "healthcare_worker" && (
+                <Button
+                  onClick={handleGenerateQR}
+                  disabled={isGeneratingQR}
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
+                >
+                  {isGeneratingQR ? "Generating..." : "Generate QR Code"}
+                </Button>
+              )}
+
+              {isEditing && (
+                <div className="space-y-2">
+                  <Label htmlFor="profileImage">Profile Picture</Label>
+                  <Input
+                    id="profileImage"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    className="cursor-pointer"
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* Personal Information Card */}
           <Card className="md:col-span-2">
@@ -256,17 +272,29 @@ export const Profile: React.FC = () => {
                   <span>Personal Information</span>
                 </span>
                 {!isEditing ? (
-                  <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsEditing(true)}
+                  >
                     <Edit3 className="h-4 w-4 mr-2" />
                     Edit Profile
                   </Button>
                 ) : (
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm" onClick={handleCancelEdit}>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancelEdit}
+                    >
                       <X className="h-4 w-4 mr-2" />
                       Cancel
                     </Button>
-                    <Button variant="default" size="sm" onClick={handleSaveChanges}>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleSaveChanges}
+                    >
                       <Save className="h-4 w-4 mr-2" />
                       Save
                     </Button>
@@ -283,7 +311,10 @@ export const Profile: React.FC = () => {
                       id="displayName"
                       value={editFormData.displayName}
                       onChange={(e) =>
-                        setEditFormData({ ...editFormData, displayName: e.target.value })
+                        setEditFormData({
+                          ...editFormData,
+                          displayName: e.target.value,
+                        })
                       }
                     />
                   ) : (
@@ -295,20 +326,40 @@ export const Profile: React.FC = () => {
 
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <p className="text-sm text-muted-foreground">{userProfile.email}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {userProfile.email}
+                  </p>
                 </div>
               </div>
 
               <div className="text-sm text-muted-foreground">
-                <p>Account created: {userProfile.createdAt ? new Date(userProfile.createdAt?.seconds ? userProfile.createdAt.seconds * 1000 : userProfile.createdAt).toLocaleDateString() : 'Unknown'}</p>
-                <p>Last updated: {userProfile.updatedAt ? new Date(userProfile.updatedAt?.seconds ? userProfile.updatedAt.seconds * 1000 : userProfile.updatedAt).toLocaleDateString() : 'Unknown'}</p>
+                <p>
+                  Account created:{" "}
+                  {userProfile.createdAt
+                    ? new Date(
+                        userProfile.createdAt?.seconds
+                          ? userProfile.createdAt.seconds * 1000
+                          : userProfile.createdAt
+                      ).toLocaleDateString()
+                    : "Unknown"}
+                </p>
+                <p>
+                  Last updated:{" "}
+                  {userProfile.updatedAt
+                    ? new Date(
+                        userProfile.updatedAt?.seconds
+                          ? userProfile.updatedAt.seconds * 1000
+                          : userProfile.updatedAt
+                      ).toLocaleDateString()
+                    : "Unknown"}
+                </p>
               </div>
 
               {isEditing && (
                 <div className="pt-4 border-t">
                   <p className="text-sm text-muted-foreground">
-                    Changes will be saved to your profile. Some changes may require you to
-                    refresh the page.
+                    Changes will be saved to your profile. Some changes may
+                    require you to refresh the page.
                   </p>
                 </div>
               )}
@@ -328,15 +379,23 @@ export const Profile: React.FC = () => {
                 <div>
                   <h3 className="font-medium">Password</h3>
                   <p className="text-sm text-muted-foreground">
-                    Last changed: {userProfile.passwordChangedAt ? new Date(userProfile.passwordChangedAt?.seconds ? userProfile.passwordChangedAt.seconds * 1000 : userProfile.passwordChangedAt).toLocaleDateString() : 'Not available'}
+                    Last changed:{" "}
+                    {userProfile.passwordChangedAt
+                      ? new Date(
+                          userProfile.passwordChangedAt?.seconds
+                            ? userProfile.passwordChangedAt.seconds * 1000
+                            : userProfile.passwordChangedAt
+                        ).toLocaleDateString()
+                      : "Not available"}
                   </p>
                 </div>
-                
-                <Dialog open={isChangingPassword} onOpenChange={setIsChangingPassword}>
+
+                <Dialog
+                  open={isChangingPassword}
+                  onOpenChange={setIsChangingPassword}
+                >
                   <DialogTrigger asChild>
-                    <Button variant="outline">
-                      Change Password
-                    </Button>
+                    <Button variant="outline">Change Password</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -344,13 +403,18 @@ export const Profile: React.FC = () => {
                     </DialogHeader>
                     <div className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="currentPassword">Current Password</Label>
+                        <Label htmlFor="currentPassword">
+                          Current Password
+                        </Label>
                         <Input
                           id="currentPassword"
                           type="password"
                           value={passwordData.currentPassword}
                           onChange={(e) =>
-                            setPasswordData({ ...passwordData, currentPassword: e.target.value })
+                            setPasswordData({
+                              ...passwordData,
+                              currentPassword: e.target.value,
+                            })
                           }
                         />
                       </div>
@@ -362,19 +426,27 @@ export const Profile: React.FC = () => {
                           type="password"
                           value={passwordData.newPassword}
                           onChange={(e) =>
-                            setPasswordData({ ...passwordData, newPassword: e.target.value })
+                            setPasswordData({
+                              ...passwordData,
+                              newPassword: e.target.value,
+                            })
                           }
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                        <Label htmlFor="confirmPassword">
+                          Confirm New Password
+                        </Label>
                         <Input
                           id="confirmPassword"
                           type="password"
                           value={passwordData.confirmPassword}
                           onChange={(e) =>
-                            setPasswordData({ ...passwordData, confirmPassword: e.target.value })
+                            setPasswordData({
+                              ...passwordData,
+                              confirmPassword: e.target.value,
+                            })
                           }
                         />
                       </div>
