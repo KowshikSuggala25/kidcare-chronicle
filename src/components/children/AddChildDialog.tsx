@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus, Baby } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Child } from "@/types";
 import { createVaccinationSchedule } from "@/services/vaccinationService";
 
@@ -45,6 +46,7 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({
   });
 
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,23 +114,23 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({
       <DialogTrigger asChild>
         <Button variant="medical" className="shadow-medical">
           <Plus className="h-4 w-4 mr-2" />
-          Add Child
+          {t('children.addChild')}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center space-x-2">
             <Baby className="h-5 w-5 text-primary" />
-            <span>Add New Child</span>
+            <span>{t('children.addChild')}</span>
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Full Name</Label>
+            <Label htmlFor="name">{t('children.childName')}</Label>
             <Input
               id="name"
-              placeholder="Enter child's full name"
+              placeholder={t('children.childName')}
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
@@ -138,7 +140,7 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="dateOfBirth">Date of Birth</Label>
+            <Label htmlFor="dateOfBirth">{t('children.dateOfBirth')}</Label>
             <Input
               id="dateOfBirth"
               type="date"
@@ -151,7 +153,7 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="gender">Gender</Label>
+            <Label htmlFor="gender">{t('children.gender')}</Label>
             <Select
               value={formData.gender}
               onValueChange={(value: "male" | "female" | "other") =>
@@ -162,9 +164,9 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="male">Male</SelectItem>
-                <SelectItem value="female">Female</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="male">{t('children.male')}</SelectItem>
+                <SelectItem value="female">{t('children.female')}</SelectItem>
+                <SelectItem value="other">{t('children.other')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -231,7 +233,7 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({
               onClick={() => setOpen(false)}
               className="flex-1"
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button
               type="submit"
@@ -239,7 +241,7 @@ export const AddChildDialog: React.FC<AddChildDialogProps> = ({
               disabled={loading}
               className="flex-1"
             >
-              {loading ? "Adding..." : "Add Child"}
+              {loading ? t('common.loading') : t('children.addChild')}
             </Button>
           </div>
         </form>

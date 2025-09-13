@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/dashboard/DashboardLayout';
 import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { VaccinationRecord, Child } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { collection, query, where, getDocs } from 'firebase/firestore';
@@ -21,6 +22,7 @@ const Vaccinations = () => {
   const [monthFilter, setMonthFilter] = useState<string>('');
   const [dateFilter, setDateFilter] = useState<string>('');
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -178,9 +180,9 @@ const Vaccinations = () => {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Vaccinations</h1>
+          <h1 className="text-3xl font-bold text-foreground">{t('vaccinations.title')}</h1>
           <p className="text-muted-foreground mt-1">
-            Track vaccination schedules and records
+            {t('vaccinations.schedule')} and {t('vaccinations.history')}
           </p>
         </div>
 

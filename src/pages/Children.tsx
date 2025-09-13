@@ -3,6 +3,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { ChildCard } from "@/components/children/ChildCard";
 import { AddChildDialog } from "@/components/children/AddChildDialog";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { Child } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -19,6 +20,7 @@ const Children = () => {
   const [children, setChildren] = useState<Child[]>([]);
   const [loading, setLoading] = useState(true);
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -183,13 +185,13 @@ Last Updated: ${child.updatedAt.toLocaleDateString()}
           <div>
             <h1 className="text-3xl font-bold text-foreground">
               {userProfile?.role === "parent"
-                ? "Your Children"
-                : "All Patients"}
+                ? t('children.yourChildren')
+                : t('children.allPatients')}
             </h1>
             <p className="text-muted-foreground mt-1">
               {userProfile?.role === "parent"
-                ? "Manage your children's vaccination records"
-                : "View and manage all patient records"}
+                ? t('children.manageChildrenRecords')
+                : t('children.viewManageRecords')}
             </p>
           </div>
           {userProfile?.role === "parent" && (
@@ -214,13 +216,13 @@ Last Updated: ${child.updatedAt.toLocaleDateString()}
             </svg>
             <h3 className="mt-4 text-lg font-medium text-foreground">
               {userProfile?.role === "parent"
-                ? "No children added yet"
-                : "No patients found"}
+                ? t('dashboard.noChildrenYet')
+                : t('children.noPatientsFound')}
             </h3>
             <p className="mt-2 text-muted-foreground">
               {userProfile?.role === "parent"
-                ? "Add your first child to start tracking their vaccination journey."
-                : "Patient records will appear here once added."}
+                ? t('dashboard.addFirstChild')
+                : t('dashboard.patientsWillAppear')}
             </p>
             {userProfile?.role === "parent" && (
               <div className="mt-6">

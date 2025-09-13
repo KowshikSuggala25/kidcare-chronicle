@@ -138,11 +138,42 @@ const translations: Record<Language, Record<string, string>> = {
     'children.downloadReport': 'Download Report',
     
     // Dashboard
-    'dashboard.welcome': 'Welcome',
+    'dashboard.welcome': 'Welcome back',
     'dashboard.overview': 'Overview',
     'dashboard.recentActivity': 'Recent Activity',
     'dashboard.upcomingVaccinations': 'Upcoming Vaccinations',
     'dashboard.statistics': 'Statistics',
+    'dashboard.totalChildren': 'Total Children',
+    'dashboard.upcomingVaccines': 'Upcoming Vaccines',
+    'dashboard.completedVaccines': 'Completed Vaccines',
+    'dashboard.yourChildren': 'Your Children',
+    'dashboard.recentPatients': 'Recent Patients',
+    'dashboard.noChildrenYet': 'No children added yet',
+    'dashboard.noPatientRecords': 'No patient records added yet',
+    'dashboard.addFirstChild': 'Add your first child to start tracking their vaccination journey.',
+    'dashboard.patientsWillAppear': 'Patient records will appear here once added.',
+    'dashboard.manageChildrenRecords': 'Manage your children\'s vaccination records',
+    'dashboard.accessPatientRecords': 'Access patient vaccination records',
+    
+    // Children Page
+    'children.yourChildren': 'Your Children',
+    'children.allPatients': 'All Patients',
+    'children.manageChildrenRecords': 'Manage your children\'s vaccination records',
+    'children.viewManageRecords': 'View and manage all patient records',
+    'children.noChildrenFound': 'No children found',
+    'children.noPatientsFound': 'No patients found',
+    
+    // Records
+    'records.title': 'Records',
+    'records.medicalRecords': 'Medical Records',
+    'records.vaccinationHistory': 'Vaccination History',
+    'records.downloadReport': 'Download Report',
+    'records.generateQR': 'Generate QR Code',
+    
+    // Education
+    'education.title': 'Education',
+    'education.vaccinationInfo': 'Vaccination Information',
+    'education.resources': 'Resources',
     
     // Vaccinations
     'vaccinations.title': 'Vaccinations',
@@ -234,11 +265,42 @@ const translations: Record<Language, Record<string, string>> = {
     'children.downloadReport': 'रिपोर्ट डाउनलोड करें',
     
     // Dashboard
-    'dashboard.welcome': 'स्वागत',
+    'dashboard.welcome': 'वापसी पर स्वागत',
     'dashboard.overview': 'अवलोकन',
     'dashboard.recentActivity': 'हाल की गतिविधि',
     'dashboard.upcomingVaccinations': 'आगामी टीकाकरण',
     'dashboard.statistics': 'सांख्यिकी',
+    'dashboard.totalChildren': 'कुल बच्चे',
+    'dashboard.upcomingVaccines': 'आगामी टीके',
+    'dashboard.completedVaccines': 'पूर्ण टीके',
+    'dashboard.yourChildren': 'आपके बच्चे',
+    'dashboard.recentPatients': 'हाल के मरीज़',
+    'dashboard.noChildrenYet': 'अभी तक कोई बच्चे नहीं जोड़े गए',
+    'dashboard.noPatientRecords': 'अभी तक कोई मरीज़ रिकॉर्ड नहीं जोड़े गए',
+    'dashboard.addFirstChild': 'उनकी टीकाकरण यात्रा को ट्रैक करना शुरू करने के लिए अपना पहला बच्चा जोड़ें।',
+    'dashboard.patientsWillAppear': 'एक बार जोड़े जाने पर मरीज़ रिकॉर्ड यहाँ दिखाई देंगे।',
+    'dashboard.manageChildrenRecords': 'अपने बच्चों के टीकाकरण रिकॉर्ड प्रबंधित करें',
+    'dashboard.accessPatientRecords': 'मरीज़ टीकाकरण रिकॉर्ड तक पहुंचें',
+    
+    // Children Page
+    'children.yourChildren': 'आपके बच्चे',
+    'children.allPatients': 'सभी मरीज़',
+    'children.manageChildrenRecords': 'अपने बच्चों के टीकाकरण रिकॉर्ड प्रबंधित करें',
+    'children.viewManageRecords': 'सभी मरीज़ रिकॉर्ड देखें और प्रबंधित करें',
+    'children.noChildrenFound': 'कोई बच्चे नहीं मिले',
+    'children.noPatientsFound': 'कोई मरीज़ नहीं मिले',
+    
+    // Records
+    'records.title': 'रिकॉर्ड',
+    'records.medicalRecords': 'चिकित्सा रिकॉर्ड',
+    'records.vaccinationHistory': 'टीकाकरण इतिहास',
+    'records.downloadReport': 'रिपोर्ट डाउनलोड करें',
+    'records.generateQR': 'QR कोड बनाएं',
+    
+    // Education
+    'education.title': 'शिक्षा',
+    'education.vaccinationInfo': 'टीकाकरण जानकारी',
+    'education.resources': 'संसाधन',
     
     // Vaccinations
     'vaccinations.title': 'टीकाकरण',
@@ -330,11 +392,42 @@ const translations: Record<Language, Record<string, string>> = {
     'children.downloadReport': 'నివేదిక డౌన్‌లోడ్ చేయండి',
     
     // Dashboard
-    'dashboard.welcome': 'స్వాగతం',
+    'dashboard.welcome': 'తిరిగి స్వాగతం',
     'dashboard.overview': 'అవలోకనం',
     'dashboard.recentActivity': 'ఇటీవలి కార్యకలాపం',
     'dashboard.upcomingVaccinations': 'రాబోయే వ్యాక్సినేషన్లు',
     'dashboard.statistics': 'గణాంకాలు',
+    'dashboard.totalChildren': 'మొత్తం పిల్లలు',
+    'dashboard.upcomingVaccines': 'రాబోయే వ్యాక్సిన్లు',
+    'dashboard.completedVaccines': 'పూర్తయిన వ్యాక్సిన్లు',
+    'dashboard.yourChildren': 'మీ పిల్లలు',
+    'dashboard.recentPatients': 'ఇటీవలి రోగులు',
+    'dashboard.noChildrenYet': 'ఇంకా పిల్లలను జోడించలేదు',
+    'dashboard.noPatientRecords': 'ఇంకా రోగుల రికార్డులు జోడించలేదు',
+    'dashboard.addFirstChild': 'వారి వ్యాక్సినేషన్ ప్రయాణాన్ని ట్రాక్ చేయడం ప్రారంభించడానికి మీ మొదటి పిల్లవాడిని జోడించండి।',
+    'dashboard.patientsWillAppear': 'ఒకసారి జోడించిన తర్వాత రోగుల రికార్డులు ఇక్కడ కనిపిస్తాయి।',
+    'dashboard.manageChildrenRecords': 'మీ పిల్లల వ్యాక్సినేషన్ రికార్డులను నిర్వహించండి',
+    'dashboard.accessPatientRecords': 'రోగుల వ్యాక్సినేషన్ రికార్డులను యాక్సెస్ చేయండి',
+    
+    // Children Page
+    'children.yourChildren': 'మీ పిల్లలు',
+    'children.allPatients': 'అన్ని రోగులు',
+    'children.manageChildrenRecords': 'మీ పిల్లల వ్యాక్సినేషన్ రికార్డులను నిర్వహించండి',
+    'children.viewManageRecords': 'అన్ని రోగుల రికార్డులను చూడండి మరియు నిర్వహించండి',
+    'children.noChildrenFound': 'పిల్లలు కనుగొనబడలేదు',
+    'children.noPatientsFound': 'రోగులు కనుగొనబడలేదు',
+    
+    // Records
+    'records.title': 'రికార్డులు',
+    'records.medicalRecords': 'వైద్య రికార్డులు',
+    'records.vaccinationHistory': 'వ్యాక్సినేషన్ చరిత్ర',
+    'records.downloadReport': 'నివేదిక డౌన్‌లోడ్ చేయండి',
+    'records.generateQR': 'QR కోడ్ జనరేట్ చేయండి',
+    
+    // Education
+    'education.title': 'విద్య',
+    'education.vaccinationInfo': 'వ్యాక్సినేషన్ సమాచారం',
+    'education.resources': 'వనరులు',
     
     // Vaccinations
     'vaccinations.title': 'వ్యాక్సినేషన్లు',

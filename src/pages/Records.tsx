@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { VaccinationRecord, Child } from "@/types";
 import { useToast } from "@/hooks/use-toast";
 import { collection, query, where, getDocs } from "firebase/firestore";
@@ -16,6 +17,7 @@ const Records = () => {
   const [selectedChild, setSelectedChild] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const { userProfile } = useAuth();
+  const { t } = useLanguage();
   const { toast } = useToast();
 
   useEffect(() => {
@@ -167,14 +169,14 @@ const Records = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-foreground">
-              Vaccination Records
+              {t('records.title')}
             </h1>
             <p className="text-muted-foreground mt-1">
-              Complete vaccination history and reports
+              {t('records.vaccinationHistory')} and {t('records.downloadReport')}
             </p>
           </div>
           <Button onClick={() => handleExportRecords()}>
-            Export All Records
+            {t('records.downloadReport')}
           </Button>
         </div>
 
